@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Emergency Cases{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2><i class="bi bi-exclamation-triangle text-danger"></i> Emergency Cases</h2>
+    
+    {% if cases %}
+    <div class="row">
+        {% for case in cases %}
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm border-{{ case.severity|lower }}">
+                <div class="card-header bg-{{ case.severity|lower }} text-white">
+                    <div class="d-flex justify-content-between">
+                        <span><strong>Queue #{{ case.queue_number }}</strong></span>
+                        <span class="badge bg-light text-dark">{{ case.get_severity_display }}</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ case.pet.name }}</h5>
+                    <p class="card-text">
+                        <strong>Owner:</strong> {{ case.owner.get_full_name }}<br>
+                        <strong>Symptoms:</strong> {{ case.symptoms|truncatewords:15 }}<br>
+                        <strong>Status:</strong> <span class="badge bg-info">{{ case.get_status_display }}</span><br>
+                        <strong>Reported:</strong> {{ case.reported_at|date:"M d, Y H:i" }}
+                    </p>
+                    
+                    {% if case.assigned_vet %}
+                    <p class="mb-3">
+                        <strong>Assigned to:</strong> Dr. {{ case.assigned_vet.get_full_name }}
+                    </p>
+                    {% elif user.role == 'VET' %}
+                    <p class="mb-3 text-info">
+                        <i class="bi bi-info-circle"></i> This emergency is unassigned. Claim it below.
+                    </p>
+                    {% endif %}
+
+                    <!-- Details and Action Buttons -->
+                    <div class="d-flex gap-2 mb-3">
+                        <a href="{% url 'medical_records:pet_detail' case.pet.pk %}" class="btn btn-outline-info btn-sm flex-grow-1">
+                            <i class="bi bi-heart-pulse me-1"></i>Pet Details
+                        </a>
+                        {% if case.appointment %}
+                        <a href="{% url 'appointments:detail' case.appointment.pk %}" class="btn btn-outline-secondary btn-sm flex-grow-1">
+                            <i class="bi bi-calendar-check me-1"></i>Appointment
+                        </a>
+                        {% endif %}
+                    </div>
+
+                    {% if user == case.assigned_vet or user.is_staff %}
+                    <form method="post" action="{% url 'appointments:resolve_emergency' case.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-check-circle"></i> Resolve Case & Finish
+                        </button>
+                    </form>
+                    {% elif not case.assigned_vet and user.role == 'VET' %}
+                    <form method="post" action="{% url 'appointments:claim_emergency' case.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="vet_id" value="{{ user.id }}">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-person-plus"></i> Claim This Emergency
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-success">
+        <i class="bi bi-check-circle"></i> No active emergency cases at the moment.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

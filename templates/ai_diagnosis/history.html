@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Diagnosis History - Ernakulam Pet Hospital{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold"><i class="bi bi-clock-history text-primary"></i> 
+                {% if user.role == 'VET' or user.is_staff %}Clinic-wide Diagnosis Log{% else %}My AI History{% endif %}
+            </h2>
+            <p class="text-secondary">Track and review all AI-powered skin disease detections.</p>
+        </div>
+    </div>
+    
+    {% if images %}
+    <div class="row g-4">
+        {% for image in images %}
+        <div class="col-md-6 col-xl-4">
+            <div class="card h-100 shadow-sm hover-card border-0 overflow-hidden">
+                <div class="position-relative">
+                    <img src="{{ image.image.url }}" class="card-img-top" alt="Diagnosis" style="height: 220px; object-fit: cover;">
+                    <div class="position-absolute top-0 end-0 m-3">
+                        <span class="badge {% if image.status == 'COMPLETED' %}bg-success{% elif image.status == 'FAILED' %}bg-danger{% else %}bg-info{% endif %} shadow-sm px-3 py-2 rounded-pill">
+                            {{ image.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title fw-bold mb-0">{{ image.pet.name }}</h5>
+                        <small class="text-secondary">{{ image.uploaded_at|date:"M d" }}</small>
+                    </div>
+                    
+                    {% if image.diagnosis_result %}
+                    <div class="p-2 rounded stats-section mb-3">
+                        <small class="text-secondary d-block">AI Prediction:</small>
+                        <strong class="text-primary">{{ image.diagnosis_result.get_predicted_disease_display }}</strong>
+                        <div class="progress mt-1" style="height: 4px;">
+                            <div class="progress-bar" style="width: {{ image.diagnosis_result.confidence_score|floatformat:0 }}%"></div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <p class="card-text small mb-4">
+                        {% if image.affected_area %}
+                        <i class="bi bi-geo-alt me-1"></i> Area: <strong>{{ image.affected_area }}</strong><br>
+                        {% endif %}
+                        <i class="bi bi-person me-1"></i> Uploaded by: <strong>{{ image.uploaded_by.first_name|default:image.uploaded_by.username }}</strong>
+                    </p>
+
+                    {% if image.status == 'COMPLETED' and image.diagnosis_result and image.diagnosis_result.pk %}
+                    <a href="{% url 'ai_diagnosis:result' image.diagnosis_result.pk %}" class="btn btn-primary w-100 rounded-pill">
+                        <i class="bi bi-file-earmark-medical"></i> Full Report
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info border-0 shadow-sm rounded-4 p-5 text-center">
+        <i class="bi bi-robot fs-1 d-block mb-3 opacity-50"></i>
+        <h4>No history found</h4>
+        <p class="mb-0">{% if user.role == 'OWNER' %}Upload a photo to get started with AI diagnostics.{% else %}No clinic records have been uploaded yet.{% endif %}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

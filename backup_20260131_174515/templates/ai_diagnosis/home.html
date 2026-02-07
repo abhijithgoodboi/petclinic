@@ -1,0 +1,433 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Diagnostics - Ernakulam Pet Hospital{% endblock %}
+
+{% block content %}
+<style>
+    .ai-hero {
+        background: var(--gradient-hero);
+        padding: 4rem 0;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .ai-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: radial-gradient(var(--primary-100) 1px, transparent 1px);
+        background-size: 40px 40px;
+        opacity: 0.5;
+    }
+
+    .ai-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: white;
+        color: var(--primary-600);
+        padding: 0.75rem 1.25rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow-md);
+    }
+
+    .ai-badge i {
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    /* How it works steps */
+    .step-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        height: 100%;
+        position: relative;
+        transition: all var(--transition-base);
+    }
+
+    .step-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .step-number {
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: var(--gradient-primary);
+        color: white;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        box-shadow: var(--shadow-green);
+    }
+
+    .step-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin: 1rem auto 1.5rem;
+        transition: all var(--transition-base);
+    }
+
+    .step-card:hover .step-icon {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    /* Conditions Grid */
+    .condition-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--gray-100);
+        padding: 0.75rem 1.25rem;
+        border-radius: 50px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        margin: 0.25rem;
+        transition: all var(--transition-fast);
+    }
+
+    .condition-badge:hover {
+        background: var(--primary-100);
+        color: var(--primary-700);
+    }
+
+    .condition-badge i {
+        color: var(--primary-500);
+    }
+
+    /* Recent Activity Table */
+    .activity-table {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+    }
+
+    .activity-table .table {
+        margin-bottom: 0;
+    }
+
+    .activity-table thead {
+        background: var(--gray-50);
+    }
+
+    .activity-table th {
+        font-weight: 600;
+        color: var(--gray-700);
+        border: none;
+        padding: 1rem 1.5rem;
+    }
+
+    .activity-table td {
+        padding: 1rem 1.5rem;
+        vertical-align: middle;
+        border-color: var(--gray-100);
+    }
+
+    .activity-table tbody tr {
+        transition: all var(--transition-fast);
+    }
+
+    .activity-table tbody tr:hover {
+        background: var(--primary-50);
+    }
+
+    .pet-thumbnail {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        object-fit: cover;
+        box-shadow: var(--shadow-sm);
+    }
+
+    /* CTA Card */
+    .ai-cta {
+        background: var(--gradient-primary);
+        border-radius: 24px;
+        padding: 3rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .ai-cta::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 400px;
+        height: 400px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+    }
+
+    /* Stats */
+    .ai-stat {
+        text-align: center;
+        padding: 1.5rem;
+    }
+
+    .ai-stat-value {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary-600);
+    }
+
+    .ai-stat-label {
+        color: var(--gray-500);
+        font-size: 0.9rem;
+    }
+</style>
+
+<section class="ai-hero">
+    <div class="container position-relative">
+        <div class="row justify-content-center">
+            <div class="col-lg-8" data-aos="fade-up">
+                <div class="ai-badge">
+                    <i class="bi bi-cpu-fill"></i>
+                    Advanced Neural Network v2.0
+                </div>
+                <h1 class="display-heading mb-3">
+                    AI-Powered <span class="text-gradient">Skin Diagnostics</span>
+                </h1>
+                <p class="lead text-secondary mb-4">
+                    Our advanced AI technology detects 10+ skin conditions in pets within seconds. 
+                    Get instant insights and professional care recommendations.
+                </p>
+                {% if user.role == 'OWNER' %}
+                <a href="{% url 'ai_diagnosis:upload' %}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-camera me-1"></i>Start New Analysis
+                </a>
+                {% else %}
+                <a href="{% url 'ai_diagnosis:history' %}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-activity me-1"></i>Review Diagnosis History
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="section-sm">
+    <div class="container">
+        <div class="row">
+            <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="0">
+                <div class="ai-stat">
+                    <div class="ai-stat-value">95%</div>
+                    <div class="ai-stat-label">Accuracy Rate</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="100">
+                <div class="ai-stat">
+                    <div class="ai-stat-value">10+</div>
+                    <div class="ai-stat-label">Conditions Detected</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="200">
+                <div class="ai-stat">
+                    <div class="ai-stat-value">&lt;30s</div>
+                    <div class="ai-stat-label">Analysis Time</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="300">
+                <div class="ai-stat">
+                    <div class="ai-stat-value">24/7</div>
+                    <div class="ai-stat-label">Available</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="section bg-primary-50">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title" data-aos="fade-up">How It <span class="text-gradient">Works</span></h2>
+            <p class="section-subtitle mx-auto" data-aos="fade-up" data-aos-delay="100">
+                Three simple steps to get instant insights about your pet's skin health.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="0">
+                <div class="step-card card card-hover-green">
+                    <div class="step-number">1</div>
+                    <div class="step-icon" style="background: var(--primary-100); color: var(--primary-600);">
+                        <i class="bi bi-camera"></i>
+                    </div>
+                    <h4 class="mb-3">Take a Photo</h4>
+                    <p class="text-secondary mb-0">Capture a clear, well-lit image of the affected skin area on your pet. Ensure good lighting and focus.</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="step-card card card-hover-green">
+                    <div class="step-number">2</div>
+                    <div class="step-icon" style="background: #dbeafe; color: #2563eb;">
+                        <i class="bi bi-cpu"></i>
+                    </div>
+                    <h4 class="mb-3">AI Analysis</h4>
+                    <p class="text-secondary mb-0">Our advanced deep learning model scans the image for visual indicators of common skin diseases.</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="step-card card card-hover-green">
+                    <div class="step-number">3</div>
+                    <div class="step-icon" style="background: #fef3c7; color: #d97706;">
+                        <i class="bi bi-journal-check"></i>
+                    </div>
+                    <h4 class="mb-3">Get Results</h4>
+                    <p class="text-secondary mb-0">Receive instant results with confidence scores and treatment recommendations reviewed by our vets.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Detectable Conditions -->
+<section class="section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title" data-aos="fade-up">Detectable <span class="text-gradient">Conditions</span></h2>
+            <p class="section-subtitle mx-auto" data-aos="fade-up" data-aos-delay="100">
+                Our AI is trained to identify these common skin conditions in dogs and cats.
+            </p>
+        </div>
+
+        <div class="text-center" data-aos="fade-up" data-aos-delay="200">
+            <span class="condition-badge"><i class="bi bi-check-circle-fill"></i>Ringworm</span>
+            <span class="condition-badge"><i class="bi bi-check-circle-fill"></i>Mange (Sarcoptic)</span>
+            <span class="condition-badge"><i class="bi bi-check-circle-fill"></i>Demodectic Mange</span>
+            <span class="condition-badge"><i class="bi bi-check-circle-fill"></i>Dermatitis</span>
+            <span class="condition-badge"><i class="bi bi-check-circle-fill"></i>Hot Spots</span>
+            <span class="condition-badge"><i class="bi bi-check-circle-fill"></i>Allergic Reactions</span>
+            <span class="condition-badge"><i class="bi bi-check-circle-fill"></i>Fungal Infections</span>
+            <span class="condition-badge"><i class="bi bi-check-circle-fill"></i>Bacterial Infections</span>
+            <span class="condition-badge"><i class="bi bi-check-circle-fill"></i>Flea Allergy</span>
+            <span class="condition-badge"><i class="bi bi-check-circle-fill"></i>Yeast Infection</span>
+        </div>
+    </div>
+</section>
+
+<!-- Recent Activity -->
+{% if recent_diagnoses %}
+<section class="section bg-primary-50">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="section-title mb-0" data-aos="fade-right">Recent <span class="text-gradient">Activity</span></h2>
+            </div>
+            <a href="{% url 'ai_diagnosis:history' %}" class="btn btn-outline-primary" data-aos="fade-left">
+                View Full History <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="activity-table" data-aos="fade-up">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Pet</th>
+                        <th>Affected Area</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for image in recent_diagnoses %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="{{ image.image.url }}" alt="{{ image.pet.name }}" class="pet-thumbnail">
+                                <div>
+                                    <strong>{{ image.pet.name }}</strong>
+                                    <br><small class="text-muted">{{ image.pet.breed|default:"Mixed" }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="text-secondary">{{ image.affected_area|default:"Not specified" }}</span>
+                        </td>
+                        <td>
+                            {% if image.status == 'COMPLETED' %}
+                            <span class="badge" style="background: var(--primary-100); color: var(--primary-700);">
+                                <i class="bi bi-check-circle me-1"></i>Completed
+                            </span>
+                            {% elif image.status == 'PENDING' %}
+                            <span class="badge" style="background: #fef3c7; color: #92400e;">
+                                <i class="bi bi-clock me-1"></i>Processing
+                            </span>
+                            {% else %}
+                            <span class="badge" style="background: #dbeafe; color: #1e40af;">
+                                {{ image.get_status_display }}
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <small class="text-secondary">{{ image.uploaded_at|date:"M d, Y" }}</small>
+                            <br><small class="text-muted">{{ image.uploaded_at|time:"H:i" }}</small>
+                        </td>
+                        <td class="text-end">
+                            {% if image.status == 'COMPLETED' %}
+                            <a href="{% url 'ai_diagnosis:result' image.diagnosis_result.pk %}" class="btn btn-primary btn-sm">
+                                View Results
+                            </a>
+                            {% else %}
+                            <span class="text-muted">Processing...</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="section">
+    <div class="container">
+        <div class="ai-cta position-relative" data-aos="fade-up">
+            <h2 style="color: white; font-size: 2rem; margin-bottom: 1rem;">Ready to Check Your Pet's Skin Health?</h2>
+            <p style="color: rgba(255,255,255,0.9); margin-bottom: 1.5rem;">Get instant AI-powered analysis with vet-verified results.</p>
+            {% if user.role == 'OWNER' %}
+            <a href="{% url 'ai_diagnosis:upload' %}" class="btn btn-white btn-lg">
+                <i class="bi bi-camera me-1"></i>Start Analysis Now
+            </a>
+            {% else %}
+            <a href="{% url 'ai_diagnosis:history' %}" class="btn btn-white btn-lg">
+                <i class="bi bi-activity me-1"></i>View All Diagnoses
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

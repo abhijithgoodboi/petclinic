@@ -1,0 +1,415 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Veterinary Platform{% endblock %}
+
+{% block content %}
+<style>
+    .login-section {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        padding: 40px 0;
+    }
+    
+    .login-card {
+        background: var(--bs-card-bg);
+        border-radius: 24px;
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(20px);
+        overflow: hidden;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    
+    .login-header {
+        background: var(--brand-gradient);
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .login-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+        animation: shimmer 3s infinite;
+    }
+    
+    .login-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 2.5rem;
+        color: white;
+        position: relative;
+        z-index: 1;
+        animation: pulse 2s infinite;
+    }
+    
+    .login-title {
+        color: white;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        font-size: 1.75rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .login-body {
+        padding: 2.5rem;
+    }
+    
+    .form-floating {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-floating input {
+        height: 60px;
+        border-radius: 12px;
+        border: 2px solid var(--bs-border-color);
+        background: transparent;
+        padding: 1rem 1rem 1rem 3rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-floating input:focus {
+        border-color: var(--brand-primary);
+        box-shadow: 0 0 0 4px var(--glow-color);
+    }
+    
+    .form-floating label {
+        padding-left: 3rem;
+    }
+    
+    .form-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.25rem;
+        color: var(--brand-primary);
+        z-index: 10;
+    }
+    
+    .password-toggle {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--brand-primary);
+        cursor: pointer;
+        z-index: 10;
+        padding: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .password-toggle:hover {
+        color: var(--brand-secondary);
+        transform: translateY(-50%) scale(1.1);
+    }
+    
+    .btn-login {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 12px;
+        margin-top: 1rem;
+    }
+    
+    .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 2rem 0;
+        color: var(--bs-body-color);
+        opacity: 0.6;
+    }
+    
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid var(--bs-border-color);
+    }
+    
+    .divider span {
+        padding: 0 1rem;
+    }
+    
+    .social-login {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+    
+    .social-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        border: 2px solid var(--bs-border-color);
+        background: transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .social-btn:hover {
+        border-color: var(--brand-primary);
+        background: var(--brand-primary);
+        color: white;
+        transform: translateY(-3px);
+    }
+    
+    .register-link {
+        text-align: center;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--bs-border-color);
+    }
+    
+    .register-link a {
+        color: var(--brand-primary);
+        font-weight: 600;
+        text-decoration: none;
+        position: relative;
+    }
+    
+    .register-link a::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: var(--brand-gradient);
+        transition: width 0.3s ease;
+    }
+    
+    .register-link a:hover::after {
+        width: 100%;
+    }
+    
+    .floating-decoration {
+        position: fixed;
+        border-radius: 50%;
+        filter: blur(100px);
+        opacity: 0.3;
+        pointer-events: none;
+        z-index: -1;
+    }
+    
+    .deco-1 {
+        width: 400px;
+        height: 400px;
+        background: var(--brand-gradient);
+        top: -100px;
+        right: -100px;
+        animation: float 20s infinite ease-in-out;
+    }
+    
+    .deco-2 {
+        width: 300px;
+        height: 300px;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        bottom: -50px;
+        left: -50px;
+        animation: float 20s infinite ease-in-out reverse;
+    }
+    
+    .error-shake {
+        animation: shake 0.5s ease-in-out;
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
+    }
+</style>
+
+<div class="floating-decoration deco-1"></div>
+<div class="floating-decoration deco-2"></div>
+
+<div class="login-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5 col-lg-4">
+                <div class="login-card slide-up">
+                    <div class="login-header">
+                        <div class="login-icon">
+                            <i class="bi bi-person-circle"></i>
+                        </div>
+                        <h3 class="login-title">Welcome Back</h3>
+                    </div>
+                    
+                    <div class="login-body">
+                        {% if form.errors %}
+                            <div class="alert alert-danger error-shake" role="alert">
+                                <i class="bi bi-exclamation-circle me-2"></i>
+                                Invalid username or password. Please try again.
+                            </div>
+                        {% endif %}
+
+                        <form method="post" id="loginForm">
+                            {% csrf_token %}
+                            
+                            <div class="form-floating">
+                                <i class="bi bi-person form-icon"></i>
+                                <input type="text" 
+                                       name="username" 
+                                       class="form-control" 
+                                       id="id_username" 
+                                       placeholder="Username"
+                                       required 
+                                       autofocus>
+                                <label for="id_username">Username</label>
+                            </div>
+
+                            <div class="form-floating">
+                                <i class="bi bi-lock form-icon"></i>
+                                <input type="password" 
+                                       name="password" 
+                                       class="form-control" 
+                                       id="id_password" 
+                                       placeholder="Password"
+                                       required>
+                                <label for="id_password">Password</label>
+                                <button type="button" class="password-toggle" id="togglePassword" title="Toggle password visibility">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+
+                            <input type="hidden" name="next" value="{{ next }}">
+
+                            <button type="submit" class="btn btn-primary btn-login ripple" id="loginBtn">
+                                <span class="btn-text"><i class="bi bi-box-arrow-in-right me-2"></i>Sign In</span>
+                                <span class="btn-loader d-none">
+                                    <span class="spinner-border spinner-border-sm me-2"></span>Signing in...
+                                </span>
+                            </button>
+                        </form>
+
+                        <div class="divider">
+                            <span>or continue with</span>
+                        </div>
+                        
+                        <div class="social-login">
+                            <button class="social-btn" title="Google">
+                                <i class="bi bi-google"></i>
+                            </button>
+                            <button class="social-btn" title="Facebook">
+                                <i class="bi bi-facebook"></i>
+                            </button>
+                            <button class="social-btn" title="Apple">
+                                <i class="bi bi-apple"></i>
+                            </button>
+                        </div>
+
+                        <div class="register-link">
+                            <p class="mb-0">Don't have an account? <a href="{% url 'accounts:register' %}">Create one</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Password Toggle
+    document.getElementById('togglePassword').addEventListener('click', function() {
+        const passwordInput = document.getElementById('id_password');
+        const icon = this.querySelector('i');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    });
+
+    // Form Submit Animation
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        const btn = document.getElementById('loginBtn');
+        const btnText = btn.querySelector('.btn-text');
+        const btnLoader = btn.querySelector('.btn-loader');
+        
+        btn.disabled = true;
+        btnText.classList.add('d-none');
+        btnLoader.classList.remove('d-none');
+    });
+
+    // Input Focus Effects
+    document.querySelectorAll('.form-floating input').forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.style.transform = 'scale(1.02)';
+        });
+        
+        input.addEventListener('blur', function() {
+            this.parentElement.style.transform = 'scale(1)';
+        });
+    });
+
+    // Social Button Click Effects
+    document.querySelectorAll('.social-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Create ripple effect
+            const ripple = document.createElement('span');
+            ripple.style.cssText = `
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(255,255,255,0.5);
+                transform: scale(0);
+                animation: ripple 0.6s linear;
+                pointer-events: none;
+            `;
+            
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = '50%';
+            ripple.style.top = '50%';
+            ripple.style.marginLeft = -size/2 + 'px';
+            ripple.style.marginTop = -size/2 + 'px';
+            
+            this.style.position = 'relative';
+            this.style.overflow = 'hidden';
+            this.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 600);
+        });
+    });
+</script>
+
+<style>
+    @keyframes ripple {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+</style>
+{% endblock %}

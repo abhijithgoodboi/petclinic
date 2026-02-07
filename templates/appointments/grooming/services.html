@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}Grooming Services - Ernakulam Pet Hospital{% endblock %}
+
+{% block content %}
+<style>
+    .grooming-hero {
+        background: var(--gradient-hero);
+        padding: 4rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .service-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+        transition: all var(--transition-base);
+        height: 100%;
+    }
+    
+    .service-card:hover {
+        transform: translateY(-10px);
+        box-shadow: var(--shadow-xl);
+    }
+    
+    .service-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .service-price {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-600);
+    }
+    
+    .price-note {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+    }
+    
+    .duration-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.75rem;
+        background: var(--gray-100);
+        border-radius: 50px;
+        font-size: 0.875rem;
+        color: var(--gray-600);
+    }
+</style>
+
+<section class="grooming-hero">
+    <div class="container text-center">
+        <span class="badge bg-white text-primary mb-3 px-3 py-2">
+            <i class="bi bi-scissors me-1"></i> Pet Spa & Grooming
+        </span>
+        <h1 class="display-4 fw-bold mb-3">Pamper Your Pet</h1>
+        <p class="lead text-muted mb-4">Professional grooming services to keep your furry friends looking and feeling their best</p>
+        <a href="{% url 'appointments:book_grooming' %}" class="btn btn-primary btn-lg">
+            <i class="bi bi-calendar-plus me-2"></i>Book Grooming Session
+        </a>
+    </div>
+</section>
+
+<div class="container mb-5">
+    <div class="row g-4">
+        {% for service in services %}
+        <div class="col-md-6 col-lg-4">
+            <div class="service-card p-4">
+                <div class="service-icon" style="background: 
+                    {% if service.service_type == 'BATHING' %}#dbeafe; color: #2563eb;
+                    {% elif service.service_type == 'HAIR_TRIMMING' %}#fce7f3; color: #db2777;
+                    {% elif service.service_type == 'NAIL_CLIPPING' %}#fef3c7; color: #d97706;
+                    {% elif service.service_type == 'FULL_GROOMING' %}var(--primary-100); color: var(--primary-600);
+                    {% else %}#e0e7ff; color: #4f46e5;
+                    {% endif %}">
+                    {% if service.service_type == 'BATHING' %}
+                        <i class="bi bi-droplet-fill"></i>
+                    {% elif service.service_type == 'HAIR_TRIMMING' %}
+                        <i class="bi bi-scissors"></i>
+                    {% elif service.service_type == 'NAIL_CLIPPING' %}
+                        <i class="bi bi-hand-index-thumb"></i>
+                    {% elif service.service_type == 'FULL_GROOMING' %}
+                        <i class="bi bi-stars"></i>
+                    {% elif service.service_type == 'EAR_CLEANING' %}
+                        <i class="bi bi-ear"></i>
+                    {% else %}
+                        <i class="bi bi-brush"></i>
+                    {% endif %}
+                </div>
+                
+                <h4 class="mb-2">{{ service.name }}</h4>
+                <p class="text-muted mb-3">{{ service.description }}</p>
+                
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <span class="service-price">Rs.{{ service.price|floatformat:0 }}</span>
+                        <span class="price-note d-block">Starting price</span>
+                    </div>
+                    <span class="duration-badge">
+                        <i class="bi bi-clock"></i> {{ service.duration }} min
+                    </span>
+                </div>
+                
+                {% if service.small_pet_price and service.large_pet_price %}
+                <div class="bg-light rounded p-3 mb-3">
+                    <small class="text-muted d-block mb-2">Pricing by pet size:</small>
+                    <div class="d-flex justify-content-between">
+                        <span class="small">Small: Rs.{{ service.small_pet_price|floatformat:0 }}</span>
+                        <span class="small">Medium: Rs.{{ service.medium_pet_price|floatformat:0 }}</span>
+                        <span class="small">Large: Rs.{{ service.large_pet_price|floatformat:0 }}</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p class="text-muted text-center py-5">No grooming services available at the moment.</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <a href="{% url 'appointments:book_grooming' %}" class="btn btn-primary btn-lg me-2">
+                <i class="bi bi-calendar-plus me-2"></i>Book Now
+            </a>
+            <a href="{% url 'appointments:grooming_list' %}" class="btn btn-outline-primary btn-lg">
+                <i class="bi bi-list-ul me-2"></i>My Bookings
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

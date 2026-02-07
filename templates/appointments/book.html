@@ -1,0 +1,792 @@
+{% extends 'base.html' %}
+
+{% block title %}Book Appointment - Ernakulam Pet Hospital{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Calendar Container */
+    .calendar-wrapper {
+        position: relative;
+    }
+    
+    .calendar-input {
+        cursor: pointer;
+        background: white !important;
+    }
+    
+    .calendar-popup {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        z-index: 1000;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        border: 1px solid #e5e7eb;
+        overflow: hidden;
+        display: none;
+        width: 320px;
+        margin-top: 8px;
+    }
+    
+    .calendar-popup.show {
+        display: block;
+        animation: fadeIn 0.2s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .calendar-header {
+        background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+        color: white;
+        padding: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .calendar-header button {
+        background: rgba(255,255,255,0.2);
+        border: none;
+        color: white;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .calendar-header button:hover {
+        background: rgba(255,255,255,0.3);
+    }
+    
+    .calendar-title {
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .calendar-weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        background: var(--primary-50);
+        padding: 10px 8px;
+    }
+    
+    .calendar-weekday {
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.75rem;
+        color: var(--primary-700);
+        text-transform: uppercase;
+    }
+    
+    .calendar-weekday.sunday {
+        color: #dc2626;
+    }
+    
+    .calendar-days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+        padding: 12px;
+    }
+    
+    .calendar-day {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 2px solid transparent;
+    }
+    
+    .calendar-day:hover:not(.disabled):not(.other-month) {
+        background: var(--primary-100);
+        border-color: var(--primary-300);
+    }
+    
+    .calendar-day.today {
+        border-color: var(--primary-500);
+        background: var(--primary-50);
+    }
+    
+    .calendar-day.selected {
+        background: var(--primary-500) !important;
+        color: white !important;
+        border-color: var(--primary-600) !important;
+    }
+    
+    .calendar-day.other-month {
+        color: #d1d5db;
+        cursor: default;
+    }
+    
+    .calendar-day.disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+    
+    /* Sunday - Clinic Closed */
+    .calendar-day.sunday {
+        background: #fef2f2;
+        color: #dc2626;
+        position: relative;
+    }
+    
+    .calendar-day.sunday::after {
+        content: '';
+        position: absolute;
+        width: 60%;
+        height: 2px;
+        background: #dc2626;
+        top: 50%;
+        left: 20%;
+        transform: rotate(-45deg);
+    }
+    
+    .calendar-day.sunday:hover {
+        background: #fee2e2;
+        border-color: #fca5a5;
+    }
+    
+    /* Doctor on leave */
+    .calendar-day.doctor-leave {
+        background: #fef3c7;
+        color: #92400e;
+        cursor: not-allowed;
+    }
+    
+    .calendar-day.doctor-leave::before {
+        content: '🏖️';
+        position: absolute;
+        font-size: 0.5rem;
+        top: 2px;
+        right: 2px;
+    }
+    
+    /* Past dates */
+    .calendar-day.past {
+        color: #d1d5db;
+        cursor: not-allowed;
+        background: #f9fafb;
+    }
+    
+    .calendar-legend {
+        display: flex;
+        gap: 16px;
+        padding: 12px 16px;
+        border-top: 1px solid #e5e7eb;
+        background: #f9fafb;
+        font-size: 0.75rem;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .legend-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 4px;
+    }
+    
+    .legend-dot.closed {
+        background: #fef2f2;
+        border: 1px solid #dc2626;
+    }
+    
+    .legend-dot.leave {
+        background: #fef3c7;
+        border: 1px solid #d97706;
+    }
+
+    /* Doctor status badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .status-available {
+        background: #d1fae5;
+        color: #059669;
+    }
+    
+    .status-busy {
+        background: #fef3c7;
+        color: #d97706;
+    }
+    
+    .status-on-leave {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+    
+    .status-off-duty {
+        background: #e5e7eb;
+        color: #6b7280;
+    }
+
+    /* Info cards */
+    .info-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 1rem;
+    }
+    
+    .info-card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+        color: var(--gray-700);
+    }
+    
+    .info-card-header i {
+        color: var(--primary-500);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow border-0 overflow-hidden rounded-4">
+                <div class="card-header bg-primary text-white py-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="mb-0 fw-bold"><i class="bi bi-calendar-plus"></i> Book Appointment</h3>
+                            <p class="mb-0 opacity-75">Schedule a visit for your pet</p>
+                        </div>
+                        <i class="bi bi-clock-history fs-1 opacity-25"></i>
+                    </div>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    {% if not pets %}
+                    <div class="alert alert-warning border-0 shadow-sm rounded-4 p-4 text-center">
+                        <i class="bi bi-exclamation-triangle fs-1 d-block mb-2"></i>
+                        <h5>No pets found</h5>
+                        <p class="text-secondary">You need to register a pet before booking an appointment.</p>
+                        <a href="{% url 'medical_records:add_pet' %}" class="btn btn-primary rounded-pill px-4">Add Pet Now</a>
+                    </div>
+                    {% else %}
+                    <form method="post" id="bookingForm">
+                        {% csrf_token %}
+                        
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label for="pet" class="form-label fw-bold text-primary">Select Pet *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 rounded-start-3"><i class="bi bi-heart-pulse text-secondary"></i></span>
+                                    <select class="form-select border-start-0 rounded-end-3" id="pet" name="pet" required>
+                                        <option value="">-- Choose Pet --</option>
+                                        {% for pet in pets %}
+                                        <option value="{{ pet.id }}">{{ pet.name }} ({{ pet.get_species_display }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="veterinarian" class="form-label fw-bold text-primary">Veterinarian</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 rounded-start-3"><i class="bi bi-person-badge text-secondary"></i></span>
+                                    <select class="form-select border-start-0 rounded-end-3" id="veterinarian" name="veterinarian">
+                                        <option value="">-- Any Available --</option>
+                                        {% for vet in veterinarians %}
+                                        <option value="{{ vet.id }}">Dr. {{ vet.get_full_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <!-- Doctor status indicator -->
+                                <div id="doctorStatusInfo" class="mt-2 d-none">
+                                    <span id="doctorStatusBadge" class="status-badge"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label for="appointment_date_display" class="form-label fw-bold text-primary">Date *</label>
+                                <div class="calendar-wrapper">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 rounded-start-3"><i class="bi bi-calendar3 text-secondary"></i></span>
+                                        <input type="text" class="form-control border-start-0 rounded-end-3 calendar-input" id="appointment_date_display" placeholder="Click to select date" readonly required>
+                                    </div>
+                                    <input type="hidden" id="appointment_date" name="appointment_date">
+                                    
+                                    <!-- Custom Calendar -->
+                                    <div class="calendar-popup" id="calendarPopup">
+                                        <div class="calendar-header">
+                                            <button type="button" id="prevMonth"><i class="bi bi-chevron-left"></i></button>
+                                            <span class="calendar-title" id="calendarTitle">February 2026</span>
+                                            <button type="button" id="nextMonth"><i class="bi bi-chevron-right"></i></button>
+                                        </div>
+                                        <div class="calendar-weekdays">
+                                            <div class="calendar-weekday">Mon</div>
+                                            <div class="calendar-weekday">Tue</div>
+                                            <div class="calendar-weekday">Wed</div>
+                                            <div class="calendar-weekday">Thu</div>
+                                            <div class="calendar-weekday">Fri</div>
+                                            <div class="calendar-weekday">Sat</div>
+                                            <div class="calendar-weekday sunday">Sun</div>
+                                        </div>
+                                        <div class="calendar-days" id="calendarDays">
+                                            <!-- Days will be generated by JavaScript -->
+                                        </div>
+                                        <div class="calendar-legend">
+                                            <div class="legend-item">
+                                                <div class="legend-dot closed"></div>
+                                                <span>Closed (Sunday)</span>
+                                            </div>
+                                            <div class="legend-item">
+                                                <div class="legend-dot leave"></div>
+                                                <span>Doctor on Leave</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <small class="text-muted"><i class="bi bi-info-circle"></i> Sundays are holidays - clinic closed</small>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="appointment_time" class="form-label fw-bold text-primary">Time *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 rounded-start-3"><i class="bi bi-clock text-secondary"></i></span>
+                                    <input type="time" class="form-control border-start-0 rounded-end-3" id="appointment_time" name="appointment_time" 
+                                        min="{% if clinic_settings %}{{ clinic_settings.opening_time|time:'H:i' }}{% else %}09:00{% endif %}" 
+                                        max="{% if clinic_settings %}{{ clinic_settings.closing_time|time:'H:i' }}{% else %}18:00{% endif %}" 
+                                        required>
+                                </div>
+                                <small class="text-muted">
+                                    <i class="bi bi-clock"></i> 
+                                    Working hours: {% if clinic_settings %}{{ clinic_settings.opening_time|time:'g:i A' }} - {{ clinic_settings.closing_time|time:'g:i A' }}{% else %}9:00 AM - 6:00 PM{% endif %}
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Availability Info Box -->
+                        <div id="availability_info" class="mb-4 d-none">
+                            <div class="alert alert-info py-3 border-0 shadow-sm rounded-4">
+                                <div id="availability_text" class="fw-medium"></div>
+                            </div>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label for="duration" class="form-label fw-bold">Estimated Duration</label>
+                                <select class="form-select rounded-3" id="duration" name="duration">
+                                    <option value="30" selected>30 minutes (Standard)</option>
+                                    <option value="45">45 minutes (In-depth)</option>
+                                    <option value="60">1 hour (Consultation)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="reason" class="form-label fw-bold">Reason for Visit *</label>
+                            <textarea class="form-control rounded-3" id="reason" name="reason" rows="3" placeholder="Briefly describe the symptoms or reason for the visit..." required></textarea>
+                        </div>
+
+                        <div class="pt-3 d-flex gap-3">
+                            <button type="submit" id="submitBtn" class="btn btn-primary px-5 py-2 rounded-pill shadow-sm fw-bold">
+                                <i class="bi bi-calendar-check"></i> Book Appointment
+                            </button>
+                            <a href="{% url 'appointments:list' %}" class="btn btn-outline-secondary px-4 py-2 rounded-pill">Cancel</a>
+                        </div>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4 mt-4 mt-lg-0">
+            <!-- Clinic Hours -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <i class="bi bi-clock"></i> Hospital Hours
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span>Monday - Saturday</span>
+                    <strong>{% if clinic_settings %}{{ clinic_settings.opening_time|time:'g:i A' }} - {{ clinic_settings.closing_time|time:'g:i A' }}{% else %}9:00 AM - 6:00 PM{% endif %}</strong>
+                </div>
+                <div class="d-flex justify-content-between align-items-center text-danger">
+                    <span>Sunday</span>
+                    <strong>Closed (Holiday)</strong>
+                </div>
+            </div>
+
+            <!-- Doctor Status -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <i class="bi bi-person-badge"></i> Doctor Availability
+                </div>
+                {% for item in vet_status_list %}
+                <div class="d-flex justify-content-between align-items-center py-2 {% if not forloop.last %}border-bottom{% endif %}">
+                    <span>Dr. {{ item.veterinarian.get_full_name }}</span>
+                    <span class="status-badge 
+                        {% if item.status == 'AVAILABLE' %}status-available
+                        {% elif item.status == 'BUSY' %}status-busy
+                        {% elif item.status == 'ON_LEAVE' %}status-on-leave
+                        {% else %}status-off-duty{% endif %}">
+                        <i class="bi bi-{% if item.status == 'AVAILABLE' %}check-circle{% elif item.status == 'BUSY' %}hourglass-split{% elif item.status == 'ON_LEAVE' %}calendar-x{% else %}moon{% endif %}"></i>
+                        {{ item.status_display }}
+                    </span>
+                </div>
+                {% if item.status == 'ON_LEAVE' and item.leave_start and item.leave_end %}
+                <small class="text-muted d-block mb-2">Leave: {{ item.leave_start|date:'M d' }} - {{ item.leave_end|date:'M d' }}</small>
+                {% endif %}
+                {% empty %}
+                <p class="text-muted mb-0">No doctors registered yet.</p>
+                {% endfor %}
+            </div>
+
+            <!-- Upcoming Unavailable Dates -->
+            {% if unavailable_dates or doctors_on_leave %}
+            <div class="info-card" style="border-left: 3px solid #dc2626;">
+                <div class="info-card-header text-danger">
+                    <i class="bi bi-exclamation-triangle"></i> Upcoming Unavailability
+                </div>
+                {% for item in unavailable_dates %}
+                <div class="d-flex justify-content-between align-items-center py-2 small">
+                    <span>{{ item.date|date:'M d, Y' }}</span>
+                    <span class="text-muted">Dr. {{ item.veterinarian__first_name }} {{ item.veterinarian__last_name }}</span>
+                </div>
+                {% endfor %}
+                {% for status in doctors_on_leave %}
+                {% if status.leave_start and status.leave_end %}
+                <div class="d-flex justify-content-between align-items-center py-2 small">
+                    <span>{{ status.leave_start|date:'M d' }} - {{ status.leave_end|date:'M d' }}</span>
+                    <span class="text-muted">Dr. {{ status.veterinarian.get_full_name }}</span>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Data from Django
+const doctorStatusData = {{ doctor_status_json|safe }};
+const clinicSettings = {
+    openingTime: "{% if clinic_settings %}{{ clinic_settings.opening_time|time:'H:i' }}{% else %}09:00{% endif %}",
+    closingTime: "{% if clinic_settings %}{{ clinic_settings.closing_time|time:'H:i' }}{% else %}18:00{% endif %}"
+};
+
+// Calendar state
+let currentDate = new Date();
+let selectedDate = null;
+let doctorLeaveDates = [];
+
+// Month names
+const monthNames = ["January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"];
+
+// Initialize calendar
+function initCalendar() {
+    renderCalendar();
+    
+    // Toggle calendar on input click
+    document.getElementById('appointment_date_display').addEventListener('click', function(e) {
+        e.stopPropagation();
+        document.getElementById('calendarPopup').classList.toggle('show');
+    });
+    
+    // Close calendar when clicking outside
+    document.addEventListener('click', function(e) {
+        const popup = document.getElementById('calendarPopup');
+        const wrapper = document.querySelector('.calendar-wrapper');
+        if (!wrapper.contains(e.target)) {
+            popup.classList.remove('show');
+        }
+    });
+    
+    // Navigation buttons
+    document.getElementById('prevMonth').addEventListener('click', function(e) {
+        e.stopPropagation();
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        renderCalendar();
+    });
+    
+    document.getElementById('nextMonth').addEventListener('click', function(e) {
+        e.stopPropagation();
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        renderCalendar();
+    });
+}
+
+function renderCalendar() {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    
+    // Update title
+    document.getElementById('calendarTitle').textContent = `${monthNames[month]} ${year}`;
+    
+    // Get first day of month and total days
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const totalDays = lastDay.getDate();
+    
+    // Get day of week for first day (0=Sun, convert to Mon=0)
+    let startDay = firstDay.getDay() - 1;
+    if (startDay < 0) startDay = 6;
+    
+    // Get today for comparison
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Build calendar HTML
+    let html = '';
+    
+    // Previous month days
+    const prevMonthLastDay = new Date(year, month, 0).getDate();
+    for (let i = startDay - 1; i >= 0; i--) {
+        html += `<div class="calendar-day other-month">${prevMonthLastDay - i}</div>`;
+    }
+    
+    // Current month days
+    for (let day = 1; day <= totalDays; day++) {
+        const date = new Date(year, month, day);
+        date.setHours(0, 0, 0, 0);
+        const dateStr = formatDate(date);
+        
+        let classes = ['calendar-day'];
+        let isDisabled = false;
+        
+        // Check if Sunday (clinic closed)
+        if (date.getDay() === 0) {
+            classes.push('sunday');
+            isDisabled = true;
+        }
+        
+        // Check if past date
+        if (date < today) {
+            classes.push('past');
+            isDisabled = true;
+        }
+        
+        // Check if today
+        if (date.getTime() === today.getTime()) {
+            classes.push('today');
+        }
+        
+        // Check if selected
+        if (selectedDate && date.getTime() === selectedDate.getTime()) {
+            classes.push('selected');
+        }
+        
+        // Check if doctor is on leave this date
+        if (doctorLeaveDates.includes(dateStr)) {
+            classes.push('doctor-leave');
+            isDisabled = true;
+        }
+        
+        if (isDisabled) {
+            classes.push('disabled');
+        }
+        
+        html += `<div class="${classes.join(' ')}" data-date="${dateStr}" ${isDisabled ? '' : 'onclick="selectDate(this)"'}>${day}</div>`;
+    }
+    
+    // Next month days
+    const remainingDays = 42 - (startDay + totalDays);
+    for (let i = 1; i <= remainingDays; i++) {
+        html += `<div class="calendar-day other-month">${i}</div>`;
+    }
+    
+    document.getElementById('calendarDays').innerHTML = html;
+}
+
+function selectDate(element) {
+    const dateStr = element.dataset.date;
+    const [year, month, day] = dateStr.split('-').map(Number);
+    selectedDate = new Date(year, month - 1, day);
+    
+    // Update hidden input
+    document.getElementById('appointment_date').value = dateStr;
+    
+    // Update display input
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('appointment_date_display').value = selectedDate.toLocaleDateString('en-US', options);
+    
+    // Close popup
+    document.getElementById('calendarPopup').classList.remove('show');
+    
+    // Re-render to show selection
+    renderCalendar();
+    
+    // Check availability
+    checkAvailability();
+}
+
+function formatDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function updateDoctorLeaveDates() {
+    const vetId = document.getElementById('veterinarian').value;
+    doctorLeaveDates = [];
+    
+    if (vetId && doctorStatusData[vetId]) {
+        const status = doctorStatusData[vetId];
+        if (status.leave_start && status.leave_end) {
+            // Generate all dates between leave_start and leave_end
+            const start = new Date(status.leave_start);
+            const end = new Date(status.leave_end);
+            for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                doctorLeaveDates.push(formatDate(new Date(d)));
+            }
+        }
+    }
+    
+    renderCalendar();
+}
+
+function updateDoctorStatusDisplay() {
+    const vetId = document.getElementById('veterinarian').value;
+    const statusInfo = document.getElementById('doctorStatusInfo');
+    const statusBadge = document.getElementById('doctorStatusBadge');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (!vetId) {
+        statusInfo.classList.add('d-none');
+        submitBtn.disabled = false;
+        return;
+    }
+    
+    const status = doctorStatusData[vetId];
+    if (status) {
+        statusInfo.classList.remove('d-none');
+        
+        let badgeClass = 'status-off-duty';
+        let icon = 'moon';
+        
+        if (status.status === 'AVAILABLE') {
+            badgeClass = 'status-available';
+            icon = 'check-circle';
+        } else if (status.status === 'BUSY') {
+            badgeClass = 'status-busy';
+            icon = 'hourglass-split';
+        } else if (status.status === 'ON_LEAVE') {
+            badgeClass = 'status-on-leave';
+            icon = 'calendar-x';
+        }
+        
+        statusBadge.className = `status-badge ${badgeClass}`;
+        statusBadge.innerHTML = `<i class="bi bi-${icon}"></i> ${status.status_display}`;
+        
+        if (status.on_leave || status.status === 'ON_LEAVE') {
+            submitBtn.disabled = true;
+            statusBadge.innerHTML += ' - Cannot book';
+        } else {
+            submitBtn.disabled = false;
+        }
+    } else {
+        statusInfo.classList.add('d-none');
+    }
+}
+
+function checkAvailability() {
+    const vetId = document.getElementById('veterinarian').value;
+    const date = document.getElementById('appointment_date').value;
+    const time = document.getElementById('appointment_time').value;
+    const infoDiv = document.getElementById('availability_info');
+    const textDiv = document.getElementById('availability_text');
+    const submitBtn = document.getElementById('submitBtn');
+
+    if (!date) {
+        infoDiv.classList.add('d-none');
+        return;
+    }
+
+    // Check working hours
+    if (time) {
+        if (time < clinicSettings.openingTime || time > clinicSettings.closingTime) {
+            infoDiv.classList.remove('d-none');
+            textDiv.innerHTML = `<i class="bi bi-clock text-warning"></i> <strong>Selected time is outside working hours.</strong> Please select a time between ${clinicSettings.openingTime} and ${clinicSettings.closingTime}.`;
+            infoDiv.querySelector('.alert').className = 'alert alert-warning py-3 border-0 shadow-sm rounded-4';
+            submitBtn.disabled = true;
+            return;
+        }
+    }
+
+    if (vetId && date) {
+        let url = `/appointments/availability/check/?vet_id=${vetId}&date=${date}`;
+        if (time) url += `&time=${time}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                infoDiv.classList.remove('d-none');
+                if (data.is_available) {
+                    submitBtn.disabled = false;
+                    if (data.has_schedule) {
+                        textDiv.innerHTML = `<i class="bi bi-check-circle-fill text-success"></i> Dr. is available from <strong>${data.start_time}</strong> to <strong>${data.end_time}</strong>.`;
+                        infoDiv.querySelector('.alert').className = 'alert alert-success py-3 border-0 shadow-sm rounded-4';
+                    } else {
+                        textDiv.innerHTML = `<i class="bi bi-info-circle-fill text-info"></i> No set schedule for this day. Booking is open.`;
+                        infoDiv.querySelector('.alert').className = 'alert alert-info py-3 border-0 shadow-sm rounded-4';
+                    }
+                } else {
+                    submitBtn.disabled = true;
+                    let message = data.reason ? data.reason : "Dr. is NOT available on this date.";
+                    textDiv.innerHTML = `<i class="bi bi-x-circle-fill text-danger"></i> <strong>${message}</strong> Please choose another time, date or doctor.`;
+                    infoDiv.querySelector('.alert').className = 'alert alert-danger py-3 border-0 shadow-sm rounded-4';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                submitBtn.disabled = false;
+            });
+    } else if (date && time) {
+        infoDiv.classList.remove('d-none');
+        textDiv.innerHTML = `<i class="bi bi-info-circle-fill text-info"></i> Any available doctor will be assigned.`;
+        infoDiv.querySelector('.alert').className = 'alert alert-info py-3 border-0 shadow-sm rounded-4';
+        submitBtn.disabled = false;
+    } else {
+        infoDiv.classList.add('d-none');
+        submitBtn.disabled = false;
+    }
+}
+
+// Event listeners
+document.getElementById('veterinarian').addEventListener('change', () => {
+    updateDoctorStatusDisplay();
+    updateDoctorLeaveDates();
+    checkAvailability();
+});
+
+document.getElementById('appointment_time').addEventListener('change', checkAvailability);
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', initCalendar);
+</script>
+{% endblock %}

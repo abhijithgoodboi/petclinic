@@ -1,0 +1,554 @@
+{% extends 'base.html' %}
+
+{% block title %}Our Services - Ernakulam Pet Hospital{% endblock %}
+
+{% block content %}
+<style>
+    /* Hero Section */
+    .services-hero {
+        background: var(--gradient-hero);
+        padding: 6rem 0;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .services-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: radial-gradient(var(--primary-100) 1px, transparent 1px);
+        background-size: 40px 40px;
+        opacity: 0.5;
+    }
+
+    .services-hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Service Cards */
+    .service-detail-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        transition: all var(--transition-base);
+        height: 100%;
+    }
+
+    .service-detail-card:hover {
+        transform: translateY(-10px);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .service-image {
+        height: 250px;
+        overflow: hidden;
+    }
+
+    .service-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform var(--transition-slow);
+    }
+
+    .service-detail-card:hover .service-image img {
+        transform: scale(1.1);
+    }
+
+    .service-content {
+        padding: 2rem;
+    }
+
+    .service-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        margin-top: -50px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .service-title {
+        font-size: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .service-description {
+        color: var(--gray-500);
+        margin-bottom: 1.5rem;
+        line-height: 1.7;
+    }
+
+    .service-features {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 1.5rem 0;
+    }
+
+    .service-features li {
+        padding: 0.5rem 0;
+        color: var(--gray-600);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .service-features li i {
+        color: var(--primary-500);
+        font-size: 1rem;
+    }
+
+    /* Pricing Cards */
+    .pricing-section {
+        background: var(--gray-50);
+    }
+
+    .pricing-card {
+        background: white;
+        border-radius: 24px;
+        padding: 2.5rem;
+        text-align: center;
+        height: 100%;
+        transition: all var(--transition-base);
+        position: relative;
+    }
+
+    .pricing-card.featured {
+        border: 2px solid var(--primary-500);
+        transform: scale(1.05);
+    }
+
+    .pricing-card.featured::before {
+        content: 'Most Popular';
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--gradient-primary);
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .pricing-card:hover {
+        box-shadow: var(--shadow-xl);
+    }
+
+    .pricing-title {
+        font-size: 1.25rem;
+        color: var(--gray-600);
+        margin-bottom: 0.5rem;
+    }
+
+    .pricing-price {
+        font-family: 'Playfair Display', serif;
+        font-size: 3.5rem;
+        font-weight: 700;
+        color: var(--gray-900);
+        margin-bottom: 1.5rem;
+    }
+
+    .pricing-price span {
+        font-size: 1rem;
+        color: var(--gray-500);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .pricing-features {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 2rem 0;
+        text-align: left;
+    }
+
+    .pricing-features li {
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--gray-100);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .pricing-features li i {
+        color: var(--primary-500);
+    }
+
+    /* FAQ Section */
+    .faq-section {
+        background: white;
+    }
+
+    .accordion-item {
+        border: none;
+        margin-bottom: 1rem;
+    }
+
+    .accordion-button {
+        background: var(--gray-50);
+        border-radius: 16px !important;
+        font-weight: 600;
+        padding: 1.25rem 1.5rem;
+        box-shadow: none !important;
+    }
+
+    .accordion-button:not(.collapsed) {
+        background: var(--primary-50);
+        color: var(--primary-700);
+    }
+
+    .accordion-button::after {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2322c55e'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+    }
+
+    .accordion-body {
+        padding: 1.5rem;
+        color: var(--gray-600);
+        line-height: 1.7;
+    }
+
+    /* CTA */
+    .services-cta {
+        background: var(--gradient-primary);
+        border-radius: 30px;
+        padding: 4rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .services-cta::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 500px;
+        height: 500px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+    }
+</style>
+
+<!-- Hero Section -->
+<section class="services-hero">
+    <div class="container services-hero-content">
+        <div class="hero-badge mb-3" data-aos="fade-up">
+            <i class="bi bi-heart-pulse"></i>
+            Comprehensive Pet Care
+        </div>
+        <h1 class="display-heading mb-3" data-aos="fade-up" data-aos-delay="100">
+            Our <span class="text-gradient">Services</span>
+        </h1>
+        <p class="lead text-secondary mb-0 mx-auto" style="max-width: 600px;" data-aos="fade-up" data-aos-delay="200">
+            From routine checkups to advanced AI diagnostics, we provide everything your pet needs to live a healthy, happy life.
+        </p>
+    </div>
+</section>
+
+<!-- Main Services -->
+<section class="section">
+    <div class="container">
+        <div class="row g-4">
+            <!-- General Wellness -->
+            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="0">
+                <div class="service-detail-card card">
+                    <div class="service-image">
+                        <img src="https://images.unsplash.com/photo-1628009368231-7bb7cfcb0def?w=600&h=300&fit=crop" alt="General Wellness">
+                    </div>
+                    <div class="service-content">
+                        <div class="service-icon" style="background: var(--gradient-primary); color: white; box-shadow: var(--shadow-green);">
+                            <i class="bi bi-heart-pulse"></i>
+                        </div>
+                        <h3 class="service-title">General Wellness Exams</h3>
+                        <p class="service-description">
+                            Comprehensive health assessments to keep your pet in optimal condition. Our thorough examinations catch potential issues early.
+                        </p>
+                        <ul class="service-features">
+                            <li><i class="bi bi-check-circle-fill"></i> Complete physical examination</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Weight & nutrition assessment</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Dental health check</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Behavioral consultation</li>
+                        </ul>
+                        <a href="{% url 'appointments:book' %}" class="btn btn-primary">Book Appointment</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vaccinations -->
+            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="service-detail-card card">
+                    <div class="service-image">
+                        <img src="https://images.unsplash.com/photo-1612531386530-97286d97c2d2?w=600&h=300&fit=crop" alt="Vaccinations">
+                    </div>
+                    <div class="service-content">
+                        <div class="service-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; box-shadow: 0 10px 40px -10px rgba(59, 130, 246, 0.3);">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        <h3 class="service-title">Vaccinations & Prevention</h3>
+                        <p class="service-description">
+                            Protect your pet from common diseases with our comprehensive vaccination programs tailored to their specific needs and lifestyle.
+                        </p>
+                        <ul class="service-features">
+                            <li><i class="bi bi-check-circle-fill"></i> Core vaccinations (Rabies, DHPP)</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Lifestyle-based vaccines</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Vaccination schedule tracking</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Booster reminders</li>
+                        </ul>
+                        <a href="{% url 'appointments:book' %}" class="btn btn-primary">Book Appointment</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Diagnosis -->
+            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
+                <div class="service-detail-card card">
+                    <div class="service-image">
+                        <img src="https://images.unsplash.com/photo-1551884831-bbf3cdc6469e?w=600&h=300&fit=crop" alt="AI Diagnosis">
+                    </div>
+                    <div class="service-content">
+                        <div class="service-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; box-shadow: 0 10px 40px -10px rgba(245, 158, 11, 0.3);">
+                            <i class="bi bi-cpu"></i>
+                        </div>
+                        <h3 class="service-title">AI Skin Diagnostics</h3>
+                        <p class="service-description">
+                            Our advanced AI technology analyzes pet skin conditions with 95% accuracy, enabling early detection and faster treatment.
+                        </p>
+                        <ul class="service-features">
+                            <li><i class="bi bi-check-circle-fill"></i> Instant image analysis</li>
+                            <li><i class="bi bi-check-circle-fill"></i> 10+ skin conditions detected</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Treatment recommendations</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Vet-verified results</li>
+                        </ul>
+                        <a href="{% url 'ai_diagnosis:home' %}" class="btn btn-primary">Try AI Diagnosis</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emergency Care -->
+            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="300">
+                <div class="service-detail-card card">
+                    <div class="service-image">
+                        <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&h=300&fit=crop" alt="Emergency Care">
+                    </div>
+                    <div class="service-content">
+                        <div class="service-icon" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; box-shadow: 0 10px 40px -10px rgba(239, 68, 68, 0.3);">
+                            <i class="bi bi-lightning-charge"></i>
+                        </div>
+                        <h3 class="service-title">Emergency Care</h3>
+                        <p class="service-description">
+                            When emergencies strike, our team is ready 24/7. We prioritize critical cases and provide immediate life-saving care.
+                        </p>
+                        <ul class="service-features">
+                            <li><i class="bi bi-check-circle-fill"></i> 24/7 emergency services</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Priority queue system</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Critical care specialists</li>
+                            <li><i class="bi bi-check-circle-fill"></i> On-site surgery capability</li>
+                        </ul>
+                        <a href="{% url 'appointments:book' %}" class="btn btn-primary">Emergency Contact</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Surgery -->
+            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="400">
+                <div class="service-detail-card card">
+                    <div class="service-image">
+                        <img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=600&h=300&fit=crop" alt="Pet Surgery">
+                    </div>
+                    <div class="service-content">
+                        <div class="service-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); color: white; box-shadow: 0 10px 40px -10px rgba(139, 92, 246, 0.3);">
+                            <i class="bi bi-bandaid"></i>
+                        </div>
+                        <h3 class="service-title">Surgical Services</h3>
+                        <p class="service-description">
+                            From routine spays/neuters to complex surgeries, our skilled surgeons use the latest techniques for the best outcomes.
+                        </p>
+                        <ul class="service-features">
+                            <li><i class="bi bi-check-circle-fill"></i> Spay & neuter procedures</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Soft tissue surgery</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Orthopedic surgery</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Tumor removal</li>
+                        </ul>
+                        <a href="{% url 'appointments:book' %}" class="btn btn-primary">Consultation</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dental Care -->
+            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="500">
+                <div class="service-detail-card card">
+                    <div class="service-image">
+                        <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&h=300&fit=crop" alt="Dental Care">
+                    </div>
+                    <div class="service-content">
+                        <div class="service-icon" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); color: white; box-shadow: 0 10px 40px -10px rgba(6, 182, 212, 0.3);">
+                            <i class="bi bi-emoji-smile"></i>
+                        </div>
+                        <h3 class="service-title">Dental Care</h3>
+                        <p class="service-description">
+                            Maintain your pet's oral health with our comprehensive dental services, from cleanings to extractions.
+                        </p>
+                        <ul class="service-features">
+                            <li><i class="bi bi-check-circle-fill"></i> Professional dental cleaning</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Dental X-rays</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Tooth extractions</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Oral health education</li>
+                        </ul>
+                        <a href="{% url 'appointments:book' %}" class="btn btn-primary">Book Appointment</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pricing Section -->
+<section class="pricing-section section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title" data-aos="fade-up">Simple, Transparent <span class="text-gradient">Pricing</span></h2>
+            <p class="section-subtitle mx-auto" data-aos="fade-up" data-aos-delay="100">
+                Choose the plan that works best for you and your furry friends.
+            </p>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="0">
+                <div class="pricing-card card">
+                    <h4 class="pricing-title">Basic Care</h4>
+                    <div class="pricing-price">$49<span>/visit</span></div>
+                    <ul class="pricing-features">
+                        <li><i class="bi bi-check-circle-fill"></i> General wellness exam</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Weight assessment</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Basic consultation</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Digital health record</li>
+                    </ul>
+                    <a href="{% url 'accounts:register' %}" class="btn btn-outline-primary w-100">Get Started</a>
+                </div>
+            </div>
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="pricing-card card featured">
+                    <h4 class="pricing-title">Premium Care</h4>
+                    <div class="pricing-price">$99<span>/visit</span></div>
+                    <ul class="pricing-features">
+                        <li><i class="bi bi-check-circle-fill"></i> Everything in Basic</li>
+                        <li><i class="bi bi-check-circle-fill"></i> AI skin diagnostics</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Vaccination tracking</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Priority scheduling</li>
+                        <li><i class="bi bi-check-circle-fill"></i> 24/7 chat support</li>
+                    </ul>
+                    <a href="{% url 'accounts:register' %}" class="btn btn-primary w-100">Get Started</a>
+                </div>
+            </div>
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="pricing-card card">
+                    <h4 class="pricing-title">Wellness Plan</h4>
+                    <div class="pricing-price">$199<span>/month</span></div>
+                    <ul class="pricing-features">
+                        <li><i class="bi bi-check-circle-fill"></i> Unlimited visits</li>
+                        <li><i class="bi bi-check-circle-fill"></i> All vaccinations included</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Emergency priority</li>
+                        <li><i class="bi bi-check-circle-fill"></i> 20% off surgeries</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Free AI diagnostics</li>
+                    </ul>
+                    <a href="{% url 'accounts:register' %}" class="btn btn-outline-primary w-100">Get Started</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq-section section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title" data-aos="fade-up">Frequently Asked <span class="text-gradient">Questions</span></h2>
+            <p class="section-subtitle mx-auto" data-aos="fade-up" data-aos-delay="100">
+                Got questions? We've got answers.
+            </p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item" data-aos="fade-up" data-aos-delay="0">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                How does the AI skin diagnosis work?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Simply upload a clear photo of the affected area on your pet. Our advanced AI model, trained on thousands of images, analyzes the photo and identifies potential skin conditions within seconds. The results are then reviewed by our veterinary team for accuracy.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item" data-aos="fade-up" data-aos-delay="100">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                What should I do in a pet emergency?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                If your pet is experiencing an emergency, book an emergency appointment through our platform immediately. Mark it as an emergency, and you'll be placed in our priority queue. Our 24/7 support team will contact you right away with further instructions.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item" data-aos="fade-up" data-aos-delay="200">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                Can I access my pet's medical records online?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Yes! All registered pet owners have 24/7 access to their pet's complete medical history, vaccination records, and prescriptions through our secure online platform. You can view, download, or share these records with other veterinary providers.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item" data-aos="fade-up" data-aos-delay="300">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                How do I book an appointment?
+                            </button>
+                        </h2>
+                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Booking is easy! Simply log into your account, select your pet, choose an available time slot, and confirm your appointment. You'll receive instant confirmation via email and can manage your appointments anytime through your dashboard.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="section">
+    <div class="container">
+        <div class="services-cta position-relative" data-aos="fade-up">
+            <h2 style="color: white; font-size: 2.5rem; margin-bottom: 1rem;">Ready to Get Started?</h2>
+            <p style="color: rgba(255,255,255,0.9); font-size: 1.125rem; margin-bottom: 1.5rem;">Give your pet the care they deserve. Join Ernakulam Pet Hospital today!</p>
+            <a href="{% url 'accounts:register' %}" class="btn btn-white btn-lg me-2">
+                <i class="bi bi-person-plus me-1"></i>Create Account
+            </a>
+            <a href="{% url 'appointments:book' %}" class="btn btn-outline-light btn-lg">
+                <i class="bi bi-calendar-plus me-1"></i>Book Visit
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

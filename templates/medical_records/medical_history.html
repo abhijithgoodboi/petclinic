@@ -1,0 +1,412 @@
+{% extends 'base.html' %}
+
+{% block title %}Medical History - Ernakulam Pet Hospital{% endblock %}
+
+{% block content %}
+<style>
+    .history-hero {
+        background: var(--gradient-hero);
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: var(--shadow-md);
+        height: 100%;
+    }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin: 0 auto 1rem;
+    }
+    
+    .stat-value {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+    
+    .stat-label {
+        color: var(--gray-500);
+        font-size: 0.875rem;
+    }
+    
+    /* Timeline styles */
+    .timeline-section {
+        position: relative;
+        padding-left: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .timeline-section::before {
+        content: '';
+        position: absolute;
+        left: 8px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--primary-200);
+    }
+    
+    .timeline-month {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+    
+    .timeline-month-label {
+        position: absolute;
+        left: -2rem;
+        top: 0;
+        width: 18px;
+        height: 18px;
+        background: var(--primary-500);
+        border-radius: 50%;
+        border: 3px solid white;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .month-header {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--primary-700);
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px dashed var(--gray-200);
+    }
+    
+    .record-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.25rem;
+        margin-bottom: 0.75rem;
+        box-shadow: var(--shadow-sm);
+        border-left: 4px solid var(--primary-400);
+        transition: all var(--transition-fast);
+    }
+    
+    .record-card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateX(5px);
+    }
+    
+    .record-card.vaccination {
+        border-left-color: #10b981;
+    }
+    
+    .record-type-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        background: var(--primary-100);
+        color: var(--primary-700);
+    }
+    
+    .record-type-badge.vaccination {
+        background: #d1fae5;
+        color: #059669;
+    }
+    
+    .record-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 0.75rem;
+        font-size: 0.875rem;
+        color: var(--gray-500);
+    }
+    
+    .section-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-md);
+        margin-bottom: 1.5rem;
+    }
+    
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--gray-200);
+        font-size: 1.25rem;
+    }
+    
+    .pet-info-card {
+        background: linear-gradient(135deg, var(--primary-50) 0%, white 100%);
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-md);
+        margin-bottom: 1.5rem;
+    }
+    
+    .pet-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 16px;
+        background: var(--primary-100);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: var(--primary-600);
+    }
+    
+    .pet-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 16px;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: var(--gray-500);
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        color: var(--gray-300);
+        margin-bottom: 1rem;
+    }
+</style>
+
+<section class="history-hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-5 fw-bold mb-2">
+                    <i class="bi bi-journal-medical text-primary me-2"></i>
+                    Medical History
+                </h1>
+                <p class="text-muted mb-0">Complete health timeline for your pet</p>
+            </div>
+            <div class="col-lg-6">
+                <div class="row g-2">
+                    <div class="col">
+                        <select class="form-select form-select-lg" onchange="if(this.value) window.location.href=this.value">
+                            <option value="{% url 'medical_records:medical_history' %}">All Pets</option>
+                            {% for p in pets %}
+                            <option value="{% url 'medical_records:medical_history_pet' p.pk %}" {% if pet and pet.pk == p.pk %}selected{% endif %}>
+                                {{ p.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container mb-5">
+    <!-- Stats Row -->
+    <div class="row mb-4 g-3">
+        <div class="col-md-6">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: var(--primary-100); color: var(--primary-600);">
+                    <i class="bi bi-file-medical"></i>
+                </div>
+                <div class="stat-value text-primary">{{ total_records }}</div>
+                <div class="stat-label">Medical Records</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #d1fae5; color: #059669;">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <div class="stat-value" style="color: #059669;">{{ total_vaccinations }}</div>
+                <div class="stat-label">Vaccinations</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pet Info Card (if specific pet selected) -->
+    {% if pet %}
+    <div class="pet-info-card">
+        <div class="d-flex align-items-center gap-3">
+            <div class="pet-avatar">
+                {% if pet.photo %}
+                    <img src="{{ pet.photo.url }}" alt="{{ pet.name }}">
+                {% else %}
+                    <i class="bi bi-{% if pet.species == 'DOG' %}emoji-smile{% elif pet.species == 'CAT' %}emoji-heart-eyes{% else %}heart{% endif %}"></i>
+                {% endif %}
+            </div>
+            <div>
+                <h3 class="mb-1">{{ pet.name }}</h3>
+                <p class="mb-0 text-muted">
+                    {{ pet.get_species_display }} 
+                    {% if pet.breed %} - {{ pet.breed }}{% endif %}
+                    {% if pet.date_of_birth %} | Born {{ pet.date_of_birth|date:"M d, Y" }}{% endif %}
+                </p>
+                {% if pet.allergies %}
+                <p class="mb-0 mt-1">
+                    <span class="badge bg-warning text-dark">
+                        <i class="bi bi-exclamation-triangle me-1"></i>Allergies: {{ pet.allergies }}
+                    </span>
+                </p>
+                {% endif %}
+            </div>
+            <div class="ms-auto">
+                <a href="{% url 'medical_records:pet_detail' pet.pk %}" class="btn btn-outline-primary">
+                    <i class="bi bi-eye me-1"></i> View Profile
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="row">
+        <!-- Timeline Section -->
+        <div class="col-lg-8">
+            <div class="section-card">
+                <h5 class="section-title text-primary">
+                    <i class="bi bi-clock-history"></i>
+                    Health Timeline
+                </h5>
+                
+                {% if records_by_month %}
+                <div class="timeline-section">
+                    {% for month, month_records in records_by_month.items %}
+                    <div class="timeline-month">
+                        <div class="timeline-month-label"></div>
+                        <h6 class="month-header">{{ month }}</h6>
+                        
+                        {% for record in month_records %}
+                        <div class="record-card">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <span class="record-type-badge">
+                                        <i class="bi bi-clipboard2-pulse"></i>
+                                        {{ record.get_visit_type_display|default:"Consultation" }}
+                                    </span>
+                                </div>
+                                <small class="text-muted">{{ record.visit_date|date:"M d, Y" }}</small>
+                            </div>
+                            
+                            {% if not pet %}
+                            <p class="mb-1">
+                                <strong>{{ record.pet.name }}</strong>
+                                <span class="text-muted">({{ record.pet.get_species_display }})</span>
+                            </p>
+                            {% endif %}
+                            
+                            {% if record.diagnosis %}
+                            <p class="mb-1"><strong>Diagnosis:</strong> {{ record.diagnosis }}</p>
+                            {% endif %}
+                            
+                            {% if record.symptoms %}
+                            <p class="mb-1 text-muted"><small>Symptoms: {{ record.symptoms|truncatewords:15 }}</small></p>
+                            {% endif %}
+                            
+                            <div class="record-meta">
+                                {% if record.veterinarian %}
+                                <span><i class="bi bi-person-badge me-1"></i>Dr. {{ record.veterinarian.get_full_name|default:record.veterinarian.username }}</span>
+                                {% endif %}
+                                {% if record.weight %}
+                                <span><i class="bi bi-speedometer2 me-1"></i>{{ record.weight }} kg</span>
+                                {% endif %}
+                                <a href="{% url 'medical_records:record_detail' record.pk %}" class="text-primary ms-auto">
+                                    View Details <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-journal-x d-block"></i>
+                    <h5>No Medical Records Yet</h5>
+                    <p class="mb-0">Medical records will appear here after your pet's first visit.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Vaccination Summary Sidebar -->
+        <div class="col-lg-4">
+            <div class="section-card">
+                <h5 class="section-title" style="color: #059669;">
+                    <i class="bi bi-shield-check"></i>
+                    Vaccination Records
+                </h5>
+                
+                {% for vax in vaccinations|slice:":8" %}
+                <div class="record-card vaccination">
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+                        <span class="record-type-badge vaccination">
+                            <i class="bi bi-{% if vax.status == 'COMPLETED' %}check-circle{% else %}calendar-event{% endif %}"></i>
+                            {{ vax.get_status_display }}
+                        </span>
+                    </div>
+                    <p class="mb-1 fw-bold">{{ vax.vaccine_name }}</p>
+                    {% if not pet %}
+                    <small class="text-muted d-block">{{ vax.pet.name }}</small>
+                    {% endif %}
+                    <small class="text-muted">
+                        {% if vax.status == 'COMPLETED' %}
+                            Administered: {{ vax.administered_date|date:"M d, Y" }}
+                        {% else %}
+                            Scheduled: {{ vax.scheduled_date|date:"M d, Y" }}
+                        {% endif %}
+                    </small>
+                </div>
+                {% empty %}
+                <div class="empty-state py-4">
+                    <i class="bi bi-shield-x d-block" style="font-size: 2rem;"></i>
+                    <p class="mb-0">No vaccination records</p>
+                </div>
+                {% endfor %}
+                
+                {% if vaccinations.count > 8 %}
+                <div class="text-center mt-3">
+                    <a href="{% url 'medical_records:vaccination_dashboard' %}" class="btn btn-sm btn-outline-success">
+                        View All Vaccinations <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Quick Actions -->
+            {% if user.role == 'VET' or user.is_staff %}
+            <div class="section-card">
+                <h5 class="section-title text-secondary">
+                    <i class="bi bi-lightning"></i>
+                    Quick Actions
+                </h5>
+                {% if pet %}
+                <a href="{% url 'medical_records:add_record' pet.pk %}" class="btn btn-primary w-100 mb-2">
+                    <i class="bi bi-plus-circle me-1"></i> Add Medical Record
+                </a>
+                <a href="{% url 'medical_records:add_vaccination' pet.pk %}" class="btn btn-outline-success w-100">
+                    <i class="bi bi-shield-plus me-1"></i> Schedule Vaccination
+                </a>
+                {% else %}
+                <p class="text-muted text-center mb-0">Select a pet to add records</p>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

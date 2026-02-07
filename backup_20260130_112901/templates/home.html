@@ -1,0 +1,760 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Veterinary Workflow Platform{% endblock %}
+
+{% block content %}
+<style>
+    /* Hero Section Styles */
+    .hero-section {
+        position: relative;
+        padding: 120px 0 80px;
+        overflow: hidden;
+        min-height: 90vh;
+        display: flex;
+        align-items: center;
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(79, 70, 229, 0.15);
+        color: var(--brand-primary);
+        padding: 12px 24px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(79, 70, 229, 0.2);
+        animation: badgePulse 2s infinite;
+    }
+    
+    [data-bs-theme="decay"] .hero-badge {
+        background: rgba(79, 220, 149, 0.15);
+        border-color: rgba(79, 220, 149, 0.2);
+    }
+    
+    @keyframes badgePulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); }
+        50% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
+    }
+    
+    .hero-title {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 800;
+        font-size: clamp(2.5rem, 6vw, 4.5rem);
+        letter-spacing: -2px;
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+        background: var(--brand-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: gradientShift 8s ease infinite;
+        background-size: 200% 200%;
+    }
+    
+    @keyframes gradientShift {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+    
+    .hero-subtitle {
+        font-size: 1.25rem;
+        font-weight: 400;
+        opacity: 0.9;
+        margin-bottom: 2.5rem;
+        max-width: 600px;
+        line-height: 1.6;
+    }
+    
+    .hero-cta {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .hero-stats {
+        display: flex;
+        gap: 3rem;
+        margin-top: 4rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .hero-stat {
+        text-align: center;
+    }
+    
+    .hero-stat-value {
+        font-family: 'Poppins', sans-serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: var(--brand-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: block;
+    }
+    
+    .hero-stat-label {
+        font-size: 0.875rem;
+        opacity: 0.7;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    /* 3D Scene Container */
+    .hero-3d-container {
+        position: relative;
+        height: 500px;
+        perspective: 1000px;
+    }
+    
+    .floating-card {
+        position: absolute;
+        background: var(--bs-card-bg);
+        border-radius: 20px;
+        padding: 1.5rem;
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        animation: floatCard 6s ease-in-out infinite;
+    }
+    
+    .floating-card:nth-child(1) {
+        top: 10%;
+        right: 10%;
+        width: 220px;
+        animation-delay: 0s;
+    }
+    
+    .floating-card:nth-child(2) {
+        top: 40%;
+        right: 30%;
+        width: 180px;
+        animation-delay: -2s;
+    }
+    
+    .floating-card:nth-child(3) {
+        bottom: 20%;
+        right: 5%;
+        width: 200px;
+        animation-delay: -4s;
+    }
+    
+    @keyframes floatCard {
+        0%, 100% { transform: translateY(0) rotateX(5deg) rotateY(-5deg); }
+        50% { transform: translateY(-20px) rotateX(-5deg) rotateY(5deg); }
+    }
+    
+    .card-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        background: var(--brand-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+        color: white;
+    }
+    
+    .card-title-sm {
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .card-text-sm {
+        font-size: 0.75rem;
+        opacity: 0.7;
+    }
+    
+    /* Dashboard Icons */
+    .dashboard-icon {
+        background: var(--brand-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 3rem;
+        display: inline-block;
+        margin-bottom: 1rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .hover-card:hover .dashboard-icon {
+        transform: scale(1.2) rotate(5deg);
+    }
+    
+    /* Feature Cards */
+    .feature-section {
+        padding: 100px 0;
+        position: relative;
+    }
+    
+    .section-title {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+    
+    .section-subtitle {
+        text-align: center;
+        opacity: 0.7;
+        max-width: 600px;
+        margin: 0 auto 4rem;
+    }
+    
+    .feature-icon-wrapper {
+        width: 80px;
+        height: 80px;
+        border-radius: 24px;
+        background: var(--brand-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .feature-icon-wrapper::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+        animation: shimmer 3s infinite;
+    }
+    
+    @keyframes shimmer {
+        0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+        100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+    
+    /* Wave Separator */
+    .wave-separator {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        overflow: hidden;
+        line-height: 0;
+    }
+    
+    .wave-separator svg {
+        position: relative;
+        display: block;
+        width: calc(100% + 1.3px);
+        height: 100px;
+    }
+    
+    .wave-separator .shape-fill {
+        fill: var(--stats-bg);
+    }
+    
+    /* Stats Counter Animation */
+    .stat-number {
+        font-family: 'Poppins', sans-serif;
+        font-size: 3rem;
+        font-weight: 700;
+        background: var(--brand-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    /* Emergency Alert */
+    .emergency-alert {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        border: none;
+        color: white;
+        animation: emergencyPulse 2s infinite;
+    }
+    
+    @keyframes emergencyPulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+        50% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+    }
+    
+    /* Scroll Indicator */
+    .scroll-indicator {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        opacity: 0.6;
+        animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+        0%, 100% { transform: translateX(-50%) translateY(0); }
+        50% { transform: translateX(-50%) translateY(10px); }
+    }
+    
+    .scroll-mouse {
+        width: 25px;
+        height: 40px;
+        border: 2px solid currentColor;
+        border-radius: 12px;
+        position: relative;
+    }
+    
+    .scroll-wheel {
+        width: 4px;
+        height: 8px;
+        background: currentColor;
+        border-radius: 2px;
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        animation: scrollWheel 1.5s infinite;
+    }
+    
+    @keyframes scrollWheel {
+        0% { opacity: 1; top: 8px; }
+        100% { opacity: 0; top: 20px; }
+    }
+    
+    /* Loading Skeleton */
+    .skeleton {
+        background: linear-gradient(90deg, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 75%);
+        background-size: 200% 100%;
+        animation: skeletonLoading 1.5s infinite;
+        border-radius: 8px;
+    }
+    
+    @keyframes skeletonLoading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+</style>
+
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container hero-content">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <div class="hero-badge slide-up">
+                    <i class="bi bi-sparkles"></i> The Future of Veterinary Care
+                </div>
+                <h1 class="hero-title slide-up stagger-1">
+                    Smart Care for Your<br>Beloved Pets
+                </h1>
+                <p class="hero-subtitle slide-up stagger-2">
+                    Experience next-generation veterinary management with AI-powered diagnostics, seamless appointment scheduling, and comprehensive health tracking.
+                </p>
+                
+                {% if user.is_authenticated %}
+                    <div class="mt-4 slide-up stagger-3">
+                        <h4 class="fw-bold">Welcome back, {{ user.first_name|default:user.username }}!</h4>
+                        <span class="badge bg-secondary px-3 py-2 rounded-pill">{{ user.get_role_display }}</span>
+                    </div>
+                {% else %}
+                    <div class="hero-cta slide-up stagger-3">
+                        <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg px-5 py-3 ripple">
+                            <i class="bi bi-rocket me-2"></i>Get Started
+                        </a>
+                        <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-lg px-5 py-3 ripple">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                        </a>
+                    </div>
+                {% endif %}
+                
+                <div class="hero-stats slide-up stagger-4">
+                    <div class="hero-stat">
+                        <span class="hero-stat-value" data-count="24">0</span>
+                        <span class="hero-stat-label">/7 Support</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-value" data-count="95">0</span>
+                        <span class="hero-stat-label">% AI Accuracy</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-value" data-count="1000">0</span>
+                        <span class="hero-stat-label">+ Happy Pets</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-value" data-count="50">0</span>
+                        <span class="hero-stat-label">+ Expert Vets</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-5 d-none d-lg-block">
+                <div class="hero-3d-container">
+                    <div class="floating-card tilt-card">
+                        <div class="card-icon">
+                            <i class="bi bi-heart-pulse"></i>
+                        </div>
+                        <div class="card-title-sm">Health Monitoring</div>
+                        <div class="card-text-sm">Real-time tracking</div>
+                    </div>
+                    
+                    <div class="floating-card tilt-card">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <i class="bi bi-calendar-check"></i>
+                        </div>
+                        <div class="card-title-sm">Smart Scheduling</div>
+                        <div class="card-text-sm">AI-optimized bookings</div>
+                    </div>
+                    
+                    <div class="floating-card tilt-card">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <i class="bi bi-robot"></i>
+                        </div>
+                        <div class="card-title-sm">AI Diagnostics</div>
+                        <div class="card-text-sm">Instant analysis</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if not user.is_authenticated %}
+    <div class="scroll-indicator d-none d-md-flex">
+        <div class="scroll-mouse">
+            <div class="scroll-wheel"></div>
+        </div>
+        <span class="small">Scroll to explore</span>
+    </div>
+    {% endif %}
+</div>
+
+{% if user.is_authenticated %}
+    {% if user.is_veterinarian %}
+    <!-- Emergency Alerts for Veterinarians -->
+    {% if active_emergencies %}
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="alert emergency-alert shadow-lg">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="alert-heading mb-1"><i class="bi bi-exclamation-triangle-fill me-2"></i>CRITICAL: Active Emergency Cases</h5>
+                            <p class="mb-0">There are <strong>{{ active_emergencies.count }}</strong> pending emergency cases requiring immediate attention.</p>
+                        </div>
+                        <a href="{% url 'appointments:emergency' %}" class="btn btn-light btn-lg ripple">
+                            <i class="bi bi-lightning-charge me-2"></i>View Emergency Queue
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    <!-- Dashboard Grid -->
+    <div class="container py-5">
+        <div class="row g-4">
+            {% if user.is_pet_owner %}
+            <div class="col-md-6 col-lg-3">
+                <a href="{% url 'medical_records:pet_list' %}" class="text-decoration-none">
+                    <div class="card h-100 hover-card tilt-card">
+                        <div class="card-body text-center p-4">
+                            <i class="bi bi-heart-pulse dashboard-icon"></i>
+                            <h5 class="card-title fw-bold">My Pets</h5>
+                            <p class="card-text text-secondary small">Manage pet profiles & health records</p>
+                            <div class="mt-3">
+                                <span class="badge bg-primary">View All</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <a href="{% url 'appointments:book' %}" class="text-decoration-none">
+                    <div class="card h-100 hover-card tilt-card">
+                        <div class="card-body text-center p-4">
+                            <i class="bi bi-calendar-plus dashboard-icon" style="filter: hue-rotate(45deg);"></i>
+                            <h5 class="card-title fw-bold">Book Visit</h5>
+                            <p class="card-text text-secondary small">Schedule your pet's next appointment</p>
+                            <div class="mt-3">
+                                <span class="badge bg-success">Book Now</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <a href="{% url 'appointments:list' %}" class="text-decoration-none">
+                    <div class="card h-100 hover-card tilt-card">
+                        <div class="card-body text-center p-4">
+                            <i class="bi bi-calendar-check dashboard-icon" style="filter: hue-rotate(90deg);"></i>
+                            <h5 class="card-title fw-bold">History</h5>
+                            <p class="card-text text-secondary small">View all scheduled appointments</p>
+                            <div class="mt-3">
+                                <span class="badge bg-info">View History</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <a href="{% url 'ai_diagnosis:upload' %}" class="text-decoration-none">
+                    <div class="card h-100 hover-card tilt-card">
+                        <div class="card-body text-center p-4">
+                            <i class="bi bi-robot dashboard-icon" style="filter: hue-rotate(180deg);"></i>
+                            <h5 class="card-title fw-bold">AI Check</h5>
+                            <p class="card-text text-secondary small">Instant pet health analysis</p>
+                            <div class="mt-3">
+                                <span class="badge bg-warning text-dark">Try AI</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endif %}
+            
+            {% if user.is_veterinarian %}
+            <div class="col-md-6 col-lg-3">
+                <a href="{% url 'medical_records:pet_list' %}" class="text-decoration-none">
+                    <div class="card h-100 hover-card tilt-card">
+                        <div class="card-body text-center p-4">
+                            <i class="bi bi-heart-pulse dashboard-icon" style="filter: hue-rotate(280deg);"></i>
+                            <h5 class="card-title fw-bold">Patients</h5>
+                            <p class="card-text text-secondary small">Clinic-wide pet database</p>
+                            <div class="mt-3">
+                                <span class="badge bg-primary">View All</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <a href="{% url 'appointments:list' %}" class="text-decoration-none">
+                    <div class="card h-100 hover-card tilt-card">
+                        <div class="card-body text-center p-4">
+                            <i class="bi bi-calendar-check dashboard-icon"></i>
+                            <h5 class="card-title fw-bold">Schedule</h5>
+                            <p class="card-text text-secondary small">View & manage appointments</p>
+                            <div class="mt-3">
+                                <span class="badge bg-info">Manage</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <a href="{% url 'appointments:availability' %}" class="text-decoration-none">
+                    <div class="card h-100 hover-card tilt-card">
+                        <div class="card-body text-center p-4">
+                            <i class="bi bi-clock dashboard-icon" style="filter: hue-rotate(45deg);"></i>
+                            <h5 class="card-title fw-bold">Availability</h5>
+                            <p class="card-text text-secondary small">Set your working hours</p>
+                            <div class="mt-3">
+                                <span class="badge bg-success">Update</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <a href="{% url 'appointments:emergency' %}" class="text-decoration-none">
+                    <div class="card h-100 hover-card tilt-card neon-border">
+                        <div class="card-body text-center p-4">
+                            <i class="bi bi-exclamation-triangle dashboard-icon" style="filter: hue-rotate(320deg);"></i>
+                            <h5 class="card-title fw-bold">Emergencies</h5>
+                            <p class="card-text text-secondary small">Critical care queue</p>
+                            <div class="mt-3">
+                                <span class="badge bg-danger">Priority</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <a href="{% url 'ai_diagnosis:history' %}" class="text-decoration-none">
+                    <div class="card h-100 hover-card tilt-card">
+                        <div class="card-body text-center p-4">
+                            <i class="bi bi-robot dashboard-icon" style="filter: hue-rotate(180deg);"></i>
+                            <h5 class="card-title fw-bold">AI Results</h5>
+                            <p class="card-text text-secondary small">Review AI diagnostics</p>
+                            <div class="mt-3">
+                                <span class="badge bg-warning text-dark">Review</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endif %}
+            
+            {% if user.is_staff or user.role == 'ADMIN' %}
+            <div class="col-md-6 col-lg-3">
+                <a href="{% url 'accounts:admin_dashboard' %}" class="text-decoration-none">
+                    <div class="card h-100 hover-card tilt-card">
+                        <div class="card-body text-center p-4">
+                            <i class="bi bi-speedometer2 dashboard-icon" style="filter: grayscale(1); opacity: 0.7;"></i>
+                            <h5 class="card-title fw-bold">System Admin</h5>
+                            <p class="card-text text-secondary small">Global management panel</p>
+                            <div class="mt-3">
+                                <span class="badge bg-dark">Admin</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+{% else %}
+    <!-- Features Section for Non-Logged In Users -->
+    <div class="feature-section">
+        <div class="container">
+            <h2 class="section-title slide-up">Powerful Features</h2>
+            <p class="section-subtitle slide-up">Everything you need to manage your pet's health in one place</p>
+            
+            <div class="row g-4">
+                <div class="col-md-4 slide-up stagger-1">
+                    <div class="card h-100 text-center p-4 hover-card tilt-card">
+                        <div class="feature-icon-wrapper">
+                            <i class="bi bi-calendar-check"></i>
+                        </div>
+                        <h3 class="card-title h4">Smart Appointments</h3>
+                        <p class="card-text">Book and manage appointments with automated scheduling, reminders, and emergency prioritization</p>
+                    </div>
+                </div>
+                <div class="col-md-4 slide-up stagger-2">
+                    <div class="card h-100 text-center p-4 hover-card tilt-card">
+                        <div class="feature-icon-wrapper" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <i class="bi bi-file-medical"></i>
+                        </div>
+                        <h3 class="card-title h4">Medical Records</h3>
+                        <p class="card-text">Complete digital health records, vaccination tracking, and prescription management system</p>
+                    </div>
+                </div>
+                <div class="col-md-4 slide-up stagger-3">
+                    <div class="card h-100 text-center p-4 hover-card tilt-card">
+                        <div class="feature-icon-wrapper" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <i class="bi bi-robot"></i>
+                        </div>
+                        <h3 class="card-title h4">AI Diagnostics</h3>
+                        <p class="card-text">AI-powered skin disease detection for dogs and cats with instant results and recommendations</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="wave-separator">
+            <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+            </svg>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="container py-5">
+        <div class="row py-5 stats-section">
+            <div class="col-md-3 text-center slide-up">
+                <div class="stat-number" data-count="24">0</div>
+                <p class="mb-0 fw-bold">/7 Emergency Support</p>
+            </div>
+            <div class="col-md-3 text-center slide-up stagger-1">
+                <div class="stat-number" data-count="95">0</div>
+                <p class="mb-0 fw-bold">% AI Accuracy</p>
+            </div>
+            <div class="col-md-3 text-center slide-up stagger-2">
+                <div class="stat-number" data-count="1000">0</div>
+                <p class="mb-0 fw-bold">+ Happy Pets</p>
+            </div>
+            <div class="col-md-3 text-center slide-up stagger-3">
+                <div class="stat-number" data-count="50">0</div>
+                <p class="mb-0 fw-bold">+ Expert Vets</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="container py-5">
+        <div class="card p-5 text-center" style="background: var(--brand-gradient);">
+            <h2 class="text-white mb-3" style="font-family: 'Poppins', sans-serif; font-weight: 700;">Ready to Get Started?</h2>
+            <p class="text-white mb-4" style="opacity: 0.9;">Join thousands of pet owners and veterinarians using VetCare</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg px-5 ripple">
+                    <i class="bi bi-person-plus me-2"></i>Create Account
+                </a>
+                <a href="{% url 'accounts:login' %}" class="btn btn-outline-light btn-lg px-5 ripple">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                </a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<script>
+    // Counter Animation
+    function animateCounters() {
+        const counters = document.querySelectorAll('[data-count]');
+        
+        counters.forEach(counter => {
+            const target = parseInt(counter.getAttribute('data-count'));
+            const duration = 2000;
+            const step = target / (duration / 16);
+            let current = 0;
+            
+            const updateCounter = () => {
+                current += step;
+                if (current < target) {
+                    counter.textContent = Math.floor(current);
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    counter.textContent = target;
+                }
+            };
+            
+            // Use Intersection Observer to trigger animation
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        updateCounter();
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.5 });
+            
+            observer.observe(counter);
+        });
+    }
+    
+    // Initialize animations
+    document.addEventListener('DOMContentLoaded', () => {
+        animateCounters();
+        
+        // Add parallax effect to floating cards
+        document.addEventListener('mousemove', (e) => {
+            const cards = document.querySelectorAll('.floating-card');
+            const x = (window.innerWidth - e.pageX) / 50;
+            const y = (window.innerHeight - e.pageY) / 50;
+            
+            cards.forEach((card, index) => {
+                const speed = (index + 1) * 0.5;
+                card.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+{% block title %}Diagnosis Result{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow">
+                <img src="{{ result.skin_disease_image.image.url }}" class="card-img-top" alt="Analyzed Image">
+                <div class="card-body">
+                    <h5>{{ result.skin_disease_image.pet.name }}</h5>
+                    <p class="text-muted mb-1">
+                        <small>Uploaded: {{ result.skin_disease_image.uploaded_at|date:"M d, Y H:i" }}</small>
+                    </p>
+                    {% if result.skin_disease_image.affected_area %}
+                    <p class="mb-0">
+                        <strong>Area:</strong> {{ result.skin_disease_image.affected_area }}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <!-- Emergency Alert if created -->
+            {% if emergency_case %}
+            <div class="alert alert-danger mb-3 shadow-sm" role="alert">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="bi bi-exclamation-triangle-fill" style="font-size: 2rem;"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5 class="alert-heading mb-1">Emergency Case Created</h5>
+                        <p class="mb-2">An emergency case has been automatically created based on the AI diagnosis severity.</p>
+                        <div class="d-flex gap-2">
+                            <span class="badge bg-danger">Queue #{{ emergency_case.queue_number }}</span>
+                            <span class="badge bg-warning text-dark">{{ emergency_case.get_severity_display }}</span>
+                            <span class="badge bg-secondary">{{ emergency_case.get_status_display }}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <a href="{% url 'appointments:emergency' %}" class="btn btn-danger btn-sm">
+                            View Emergency <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="card shadow mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-file-medical"></i> AI Diagnosis Result</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-{{ result.urgency_level|lower }} mb-3">
+                        <h5 class="alert-heading">
+                            {{ result.get_predicted_disease_display }}
+                        </h5>
+                        <div class="progress mt-2" style="height: 25px;">
+                            <div class="progress-bar" role="progressbar" 
+                                 style="width: {{ result.confidence_score|floatformat:0 }}%">
+                                {{ result.confidence_score|floatformat:1 }}% Confidence
+                            </div>
+                        </div>
+                        <p class="mt-2 mb-0">
+                            <strong>Confidence Level:</strong> {{ result.get_confidence_level_display }}
+                        </p>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <strong><i class="bi bi-exclamation-triangle"></i> Urgency:</strong> 
+                        {{ result.get_urgency_level_display }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Veterinarian Clinical Review -->
+            {% if user.role == 'VET' or user.is_staff or result.reviewed_by_vet %}
+            <div class="card shadow mb-3 border-0 overflow-hidden">
+                <div class="card-header {% if result.reviewed_by_vet %}bg-success{% else %}bg-info{% endif %} text-white py-3">
+                    <h5 class="mb-0"><i class="bi bi-stethoscope"></i> Clinical Review</h5>
+                </div>
+                <div class="card-body p-4">
+                    {% if result.reviewed_by_vet %}
+                        <div class="row align-items-center">
+                            <div class="col-md-2 text-center">
+                                {% if result.vet_confirmed %}
+                                    <i class="bi bi-check-circle-fill text-success fs-1"></i>
+                                {% else %}
+                                    <i class="bi bi-exclamation-octagon-fill text-warning fs-1"></i>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-10">
+                                <h6 class="fw-bold mb-1">
+                                    Status: {% if result.vet_confirmed %}Confirmed by Vet{% else %}Overridden by Vet{% endif %}
+                                </h6>
+                                <p class="mb-2"><strong>Clinical Diagnosis:</strong> {{ result.get_vet_diagnosis_display|default:result.get_predicted_disease_display }}</p>
+                                {% if result.vet_notes %}
+                                    <div class="p-3 stats-section rounded-3 small"><em>"{{ result.vet_notes }}"</em></div>
+                                {% endif %}
+                                <hr class="my-3 opacity-25">
+                                <small class="text-secondary">Reviewed by Dr. {{ result.reviewed_by_vet.last_name }} on {{ result.reviewed_at|date:"M d, Y" }}</small>
+                            </div>
+                        </div>
+                    {% elif user.role == 'VET' or user.is_staff %}
+                        <form method="post" action="{% url 'ai_diagnosis:review' result.pk %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Does the AI prediction match your clinical findings?</label>
+                                <div class="btn-group w-100" role="group">
+                                    <input type="radio" class="btn-check" name="vet_confirmed" id="confirm_yes" value="true" checked>
+                                    <label class="btn btn-outline-success" for="confirm_yes"><i class="bi bi-check-lg"></i> Yes, I Confirm</label>
+                                    
+                                    <input type="radio" class="btn-check" name="vet_confirmed" id="confirm_no" value="false">
+                                    <label class="btn btn-outline-danger" for="confirm_no"><i class="bi bi-x-lg"></i> No, I Override</label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3" id="vet_diag_container" style="display: none;">
+                                <label class="form-label fw-bold text-danger">Your Clinical Diagnosis</label>
+                                <select name="vet_diagnosis" class="form-select">
+                                    {% for code, name in result.DISEASE_CATEGORIES %}
+                                    <option value="{{ code }}" {% if code == result.predicted_disease %}selected{% endif %}>{{ name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Clinical Notes</label>
+                                <textarea name="vet_notes" class="form-control" rows="3" placeholder="Enter observations or specific treatment adjustments..."></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                                <i class="bi bi-journal-check"></i> Submit Clinical Review
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="card shadow">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-prescription2"></i> Recommendations</h5>
+                </div>
+                <div class="card-body">
+                    {% if treatment %}
+                    <h6>Description:</h6>
+                    <p>{{ treatment.description }}</p>
+
+                    <h6>Home Care:</h6>
+                    <p>{{ treatment.home_care }}</p>
+
+                    <h6>Professional Treatment:</h6>
+                    <p>{{ treatment.medical_treatment }}</p>
+
+                    <div class="alert alert-info">
+                        <strong>Recovery Time:</strong> {{ treatment.recovery_time }}
+                    </div>
+
+                    {% if treatment.contagious %}
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i> This condition may be contagious. 
+                        Keep affected pets separated.
+                    </div>
+                    {% endif %}
+                    {% else %}
+                    <p>{{ result.recommended_actions }}</p>
+                    {% endif %}
+
+                    <div class="alert alert-danger mt-3">
+                        <strong><i class="bi bi-info-circle"></i> Important:</strong>
+                        This is an AI-based preliminary analysis. Please consult with a veterinarian for 
+                        accurate diagnosis and treatment.
+                    </div>
+
+                    <div class="mt-3">
+                        {% if not user.is_veterinarian %}
+                        <a href="{% url 'appointments:book' %}" class="btn btn-primary">
+                            <i class="bi bi-calendar-check"></i> Book Appointment
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'ai_diagnosis:home' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    const confirmNo = document.getElementById('confirm_no');
+    const confirmYes = document.getElementById('confirm_yes');
+    const diagContainer = document.getElementById('vet_diag_container');
+
+    if (confirmNo && confirmYes) {
+        confirmNo.addEventListener('change', () => {
+            diagContainer.style.display = confirmNo.checked ? 'block' : 'none';
+        });
+        confirmYes.addEventListener('change', () => {
+            diagContainer.style.display = confirmYes.checked ? 'none' : 'block';
+        });
+    }
+</script>
+{% endblock %}
+{% endblock %}

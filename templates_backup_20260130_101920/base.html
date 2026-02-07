@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Veterinary Workflow Platform{% endblock %}</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-bs-theme', theme);
+        })();
+    </script>
+
+    <style>
+        :root {
+            --brand-primary: #4f46e5;
+            --brand-gradient: linear-gradient(225deg, #7c3aed 0%, #4f46e5 100%);
+            --transition-speed: 0.3s;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: -150px;
+            right: -150px;
+            width: 500px;
+            height: 500px;
+            background: var(--brand-gradient);
+            filter: blur(120px);
+            opacity: 0.08;
+            border-radius: 50%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        [data-bs-theme="decay"] body::before {
+            opacity: 0.15;
+            background: linear-gradient(225deg, #4fdc95 0%, #22c55e 100%);
+        }
+
+        [data-bs-theme="light"] {
+            --bs-body-bg: #f9fafb;
+            --nav-bg: rgba(255, 255, 255, 0.8);
+            --nav-link: #4b5563;
+            --nav-link-active: #4f46e5;
+            --brand-primary: #4f46e5;
+            --footer-bg: #ffffff;
+            --stats-bg: #ffffff;
+            --bs-card-bg: #ffffff;
+            --bs-heading-color: #000000;
+            --glass-blur: blur(10px);
+        }
+
+        [data-bs-theme="dark"] {
+            --nav-bg: rgba(17, 24, 39, 0.8);
+            --nav-link: #9ca3af;
+            --nav-link-active: #ffffff;
+            --brand-primary: #6366f1;
+            --footer-bg: #111827;
+            --stats-bg: #111827;
+            --bs-card-bg: #1f2937;
+            --bs-heading-color: #f9fafb;
+            --bs-border-color: #374151;
+            --glass-blur: blur(12px);
+        }
+
+        [data-bs-theme="decay"] {
+            --bs-body-bg: #0d0f12;
+            --bs-body-color: #a1aab8;
+            --bs-primary: #4fdc95;
+            --bs-primary-rgb: 79, 220, 149;
+            --bs-secondary-bg: #13171c;
+            --bs-tertiary-bg: #171b20;
+            --bs-card-bg: #13171c;
+            --bs-border-color: #2d3741;
+            --bs-link-color: #4fdc95;
+            --bs-heading-color: #4fdc95;
+            --nav-bg: rgba(19, 23, 28, 0.8);
+            --nav-link: #a1aab8;
+            --nav-link-active: #4fdc95;
+            --brand-primary: #4fdc95;
+            --brand-gradient: linear-gradient(225deg, #4fdc95 0%, #22c55e 100%);
+            --footer-bg: #13171c;
+            --stats-bg: #13171c;
+            --glass-blur: blur(12px);
+        }
+
+        .navbar {
+            background-color: var(--nav-bg) !important;
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            padding: 0.75rem 0;
+            transition: all var(--transition-speed);
+        }
+
+        .navbar-brand {
+            font-weight: 800 !important;
+            letter-spacing: -0.5px;
+            color: var(--brand-primary) !important;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: var(--nav-link) !important;
+            transition: color var(--transition-speed);
+        }
+
+        .nav-link.active, .nav-link:hover {
+            color: var(--nav-link-active) !important;
+        }
+
+        .btn {
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: var(--brand-gradient) !important;
+            border: none !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        [data-bs-theme="decay"] .btn-primary {
+            color: #0d0f12 !important;
+        }
+
+        .text-primary {
+            color: var(--brand-primary) !important;
+        }
+
+        .card {
+            border-radius: 16px;
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .hover-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        [data-bs-theme="dark"] .card, [data-bs-theme="decay"] .card {
+            border-color: var(--bs-border-color);
+        }
+
+        footer {
+            background-color: var(--footer-bg) !important;
+            border-top: 1px solid var(--bs-border-color);
+            font-weight: 500;
+        }
+
+        .stats-section {
+            background-color: var(--stats-bg) !important;
+            border: 1px solid var(--bs-border-color);
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg border-bottom shadow-sm sticky-top">
+        <div class="container-fluid mx-lg-4">
+            <a class="navbar-brand fw-bold me-lg-5" href="{% url 'home' %}">
+                <i class="bi bi-hospital"></i> VetCare
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto ms-lg-3">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'home' %}">
+                                <i class="bi bi-house-door"></i> Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'appointments:list' %}">
+                                <i class="bi bi-calendar-check"></i> Appointments
+                            </a>
+                        </li>
+                        {% if user.role == 'VET' or user.is_staff %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'medical_records:pet_list' %}">
+                                <i class="bi bi-heart-pulse"></i> Patients
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% if user.is_pet_owner %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'medical_records:pet_list' %}">
+                                <i class="bi bi-heart-pulse"></i> My Pets
+                            </a>
+                        </li>
+                        {% endif %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'ai_diagnosis:home' %}">
+                                <i class="bi bi-robot"></i> AI Diagnosis
+                            </a>
+                        </li>
+                        {% if user.is_veterinarian %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'appointments:emergency' %}">
+                                <i class="bi bi-exclamation-triangle"></i> Emergency
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav align-items-center">
+                    <li class="nav-item me-3">
+                        <button class="btn btn-link nav-link px-0" id="bd-theme" type="button" aria-expanded="false" onclick="toggleTheme()">
+                            <i class="bi bi-sun-fill" id="theme-icon"></i>
+                        </button>
+                    </li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                {% if user.profile_picture %}
+                                    <img src="{{ user.profile_picture.url }}" class="rounded-circle me-2" style="width: 28px; height: 28px; object-fit: cover; border: 1px solid var(--bs-border-color);">
+                                {% else %}
+                                    <i class="bi bi-person-circle me-1"></i>
+                                {% endif %}
+                                {{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
+                                <li><a class="dropdown-item py-2" href="{% url 'accounts:profile' %}">Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form method="post" action="{% url 'accounts:logout' %}" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item py-2 text-danger" style="border: none; background: none; cursor: pointer; width: 100%; text-align: left;">
+                                            Logout
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:login' %}">Login</a>
+                        </li>
+                        <li class="nav-item ms-lg-2">
+                            <a class="btn btn-primary btn-sm px-3" href="{% url 'accounts:register' %}">Register</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show border-0 shadow-sm" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="py-4 flex-grow-1">
+        <div class="container mb-3">
+            {% if request.path != '/' %}
+            <button onclick="history.back()" class="btn btn-outline-secondary btn-sm rounded-pill px-3 shadow-sm">
+                <i class="bi bi-arrow-left"></i> Back
+            </button>
+            {% endif %}
+        </div>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-5 py-4">
+        <div class="container text-center">
+            <p class="mb-0 text-secondary small">© 2024 VetCare Platform. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function updateThemeIcon(theme) {
+            const icon = document.getElementById('theme-icon');
+            if (!icon) return;
+            icon.classList.remove('bi-sun-fill', 'bi-moon-stars-fill', 'bi-droplet-fill');
+            
+            if (theme === 'dark') {
+                icon.classList.add('bi-moon-stars-fill');
+            } else if (theme === 'decay') {
+                icon.classList.add('bi-droplet-fill');
+            } else {
+                icon.classList.add('bi-sun-fill');
+            }
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+            let newTheme;
+            
+            if (currentTheme === 'light') {
+                newTheme = 'dark';
+            } else if (currentTheme === 'dark') {
+                newTheme = 'decay';
+            } else {
+                newTheme = 'light';
+            }
+            
+            document.documentElement.setAttribute('data-bs-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        }
+
+        // Initialize icon on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const theme = localStorage.getItem('theme') || 'light';
+            updateThemeIcon(theme);
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

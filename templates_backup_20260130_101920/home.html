@@ -1,0 +1,296 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Veterinary Workflow Platform{% endblock %}
+
+{% block content %}
+<style>
+    .hero-section {
+        position: relative;
+        padding: 80px 0;
+        overflow: hidden;
+    }
+    .hero-badge {
+        background: rgba(79, 70, 229, 0.1);
+        color: var(--brand-primary);
+        padding: 8px 16px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+    }
+    [data-bs-theme="decay"] .hero-badge {
+        background: rgba(79, 220, 149, 0.1);
+    }
+    .display-4 {
+        font-weight: 800 !important;
+        letter-spacing: -1.5px;
+        margin-bottom: 1.5rem;
+    }
+    .hero-bg-circle {
+        position: absolute;
+        top: -150px;
+        right: -150px;
+        width: 600px;
+        height: 600px;
+        background: var(--brand-gradient);
+        filter: blur(120px);
+        opacity: 0.2;
+        z-index: -1;
+        border-radius: 50%;
+    }
+    .dashboard-icon {
+        background: var(--brand-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 3rem;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+</style>
+
+<div class="container">
+    <!-- Hero Section -->
+    <div class="row hero-section align-items-center">
+        <div class="hero-bg-circle"></div>
+        <div class="col-lg-12 text-center">
+            <div class="hero-badge">
+                <i class="bi bi-sparkles"></i> The Future of Veterinary Care
+            </div>
+            <h1 class="display-4 text-primary">
+                VetCare Platform
+            </h1>
+            <p class="lead mb-4 mx-auto" style="max-width: 700px; font-weight: 500;">
+                An AI Enabled Veterinary Workflow Automation System. Next-generation management for modern clinics.
+            </p>
+            
+            {% if user.is_authenticated %}
+                <div class="mt-2">
+                    <h4 class="fw-bold">Welcome back, {{ user.first_name }}!</h4>
+                    <span class="badge bg-secondary px-3 py-2 rounded-pill">{{ user.get_role_display }}</span>
+                </div>
+            {% else %}
+                <div class="mt-4">
+                    <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg px-5 py-3 me-2">
+                        Get Started
+                    </a>
+                    <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-lg px-5 py-3">
+                        Login
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if user.is_authenticated %}
+    
+    {% if user.is_veterinarian %}
+    <!-- Emergency Alerts for Veterinarians -->
+    {% if active_emergencies %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-danger shadow-sm border-start border-5 border-danger">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="alert-heading mb-1"><i class="bi bi-exclamation-triangle-fill"></i> CRITICAL: Active Emergency Cases</h5>
+                        <p class="mb-0">There are <strong>{{ active_emergencies.count }}</strong> pending emergency cases requiring immediate attention.</p>
+                    </div>
+                    <a href="{% url 'appointments:emergency' %}" class="btn btn-danger">View Emergency Queue</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    <!-- Dashboard for logged in users -->
+    <div class="row g-4 py-4">
+        {% if user.is_pet_owner %}
+        <div class="col-md-3">
+            <a href="{% url 'medical_records:pet_list' %}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm hover-card border-0">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-heart-pulse dashboard-icon"></i>
+                        <h5 class="card-title fw-bold">My Pets</h5>
+                        <p class="card-text text-secondary small">Manage pet profiles</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-3">
+            <a href="{% url 'appointments:book' %}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm hover-card border-0">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-calendar-plus dashboard-icon" style="filter: hue-rotate(45deg);"></i>
+                        <h5 class="card-title fw-bold">Book Slot</h5>
+                        <p class="card-text text-secondary small">Schedule a visit</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-3">
+            <a href="{% url 'appointments:list' %}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm hover-card border-0">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-calendar-check dashboard-icon" style="filter: hue-rotate(90deg);"></i>
+                        <h5 class="card-title fw-bold">History</h5>
+                        <p class="card-text text-secondary small">View scheduled visits</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-3">
+            <a href="{% url 'ai_diagnosis:upload' %}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm hover-card border-0">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-robot dashboard-icon" style="filter: hue-rotate(180deg);"></i>
+                        <h5 class="card-title fw-bold">AI Check</h5>
+                        <p class="card-text text-secondary small">Analyze pet images</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endif %}
+        
+        {% if user.is_veterinarian %}
+        <div class="col-md-3">
+            <a href="{% url 'medical_records:pet_list' %}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm hover-card border-0">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-heart-pulse dashboard-icon" style="filter: hue-rotate(280deg);"></i>
+                        <h5 class="card-title fw-bold">Patients</h5>
+                        <p class="card-text text-secondary small">Clinic-wide pet database</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-3">
+            <a href="{% url 'appointments:list' %}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm hover-card border-0">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-calendar-check dashboard-icon"></i>
+                        <h5 class="card-title fw-bold">Schedule</h5>
+                        <p class="card-text text-secondary small">View appointments</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-3">
+            <a href="{% url 'appointments:availability' %}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm hover-card border-0">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-clock dashboard-icon" style="filter: hue-rotate(45deg);"></i>
+                        <h5 class="card-title fw-bold">Availability</h5>
+                        <p class="card-text text-secondary small">Set your hours</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-3">
+            <a href="{% url 'appointments:emergency' %}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm hover-card border-0">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-exclamation-triangle dashboard-icon" style="filter: hue-rotate(320deg);"></i>
+                        <h5 class="card-title fw-bold">Emergencies</h5>
+                        <p class="card-text text-secondary small">Critical care queue</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-3">
+            <a href="{% url 'ai_diagnosis:history' %}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm hover-card border-0">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-robot dashboard-icon" style="filter: hue-rotate(180deg);"></i>
+                        <h5 class="card-title fw-bold">AI Results</h5>
+                        <p class="card-text text-secondary small">Review diagnostics</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endif %}
+        
+        {% if user.is_staff or user.role == 'ADMIN' %}
+        <div class="col-md-3">
+            <a href="{% url 'accounts:admin_dashboard' %}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm hover-card border-0">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-speedometer2 dashboard-icon" style="filter: grayscale(1); opacity: 0.7;"></i>
+                        <h5 class="card-title fw-bold">System Admin</h5>
+                        <p class="card-text text-secondary small">Global management</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <!-- Features for non-logged in users -->
+    <div class="row g-4 py-5">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-calendar-check text-primary" style="font-size: 3rem;"></i>
+                    <h3 class="card-title mt-3">Smart Appointments</h3>
+                    <p class="card-text">Book and manage appointments with automated scheduling and emergency prioritization</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-file-medical text-primary" style="font-size: 3rem;"></i>
+                    <h3 class="card-title mt-3">Medical Records</h3>
+                    <p class="card-text">Complete digital health records, vaccination tracking, and prescription management</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-robot text-primary" style="font-size: 3rem;"></i>
+                    <h3 class="card-title mt-3">AI Diagnostics</h3>
+                    <p class="card-text">AI-powered skin disease detection for dogs and cats with instant results</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="row py-5 stats-section rounded">
+        <div class="col-md-3 text-center">
+            <h2 class="display-4 text-primary">24/7</h2>
+            <p class="mb-0">Emergency Support</p>
+        </div>
+        <div class="col-md-3 text-center">
+            <h2 class="display-4 text-primary">95%</h2>
+            <p class="mb-0">AI Accuracy</p>
+        </div>
+        <div class="col-md-3 text-center">
+            <h2 class="display-4 text-primary">1000+</h2>
+            <p class="mb-0">Happy Pets</p>
+        </div>
+        <div class="col-md-3 text-center">
+            <h2 class="display-4 text-primary">50+</h2>
+            <p class="mb-0">Expert Vets</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.hover-card {
+    transition: transform 0.2s;
+}
+.hover-card:hover {
+    transform: translateY(-5px);
+}
+</style>
+{% endblock %}

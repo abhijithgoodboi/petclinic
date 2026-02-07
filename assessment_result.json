@@ -1,0 +1,72 @@
+{
+    "DOG_001": {
+        "pet_id": "DOG_001",
+        "symptoms": "Vomiting, not eating for two days, very weak, pale gums",
+        "assessment": "Category: Emergency\nReason: Vomiting, prolonged anorexia, weakness, and pale gums indicate possible severe dehydration, shock, or anemia requiring immediate veterinary intervention."
+    },
+    "DOG_002": {
+        "pet_id": "DOG_002",
+        "symptoms": "Not breathing, blue gums, unconscious",
+        "assessment": "Category: Emergency\nReason: Respiratory arrest and cyanosis indicate life-threatening hypoxia requiring immediate CPR and emergency veterinary care."
+    },
+    "DOG_003": {
+        "pet_id": "DOG_003",
+        "symptoms": "Ate rat poison, bleeding from mouth, seizures",
+        "assessment": "Category: Emergency\nReason: Rodenticide ingestion with active bleeding and neurological signs indicates severe anticoagulant poisoning with possible internal hemorrhage."
+    },
+    "CAT_001": {
+        "pet_id": "CAT_001",
+        "symptoms": "Hit by car, severe bleeding, can't move legs",
+        "assessment": "Category: Emergency\nReason: Trauma with suspected fractures and hemorrhage indicates possible internal injuries requiring immediate stabilization and diagnostic imaging."
+    },
+    "CAT_002": {
+        "pet_id": "CAT_002",
+        "symptoms": "Snake bite, swelling rapidly, difficulty breathing",
+        "assessment": "Category: Emergency\nReason: Venomous snake bite with progressive swelling and respiratory distress indicates potential neurotoxic or hemotoxic envenomation requiring antivenom and supportive care."
+    },
+    "DOG_004": {
+        "pet_id": "DOG_004",
+        "symptoms": "Seizures lasting more than 5 minutes, collapsed",
+        "assessment": "Category: Emergency\nReason: Prolonged seizure (status epilepticus) and collapse indicate possible severe neurological emergency, intoxication, or metabolic crisis requiring immediate intervention."
+    },
+    "CAT_003": {
+        "pet_id": "CAT_003",
+        "symptoms": "Bloated stomach, trying to vomit but can't, pacing",
+        "assessment": "Category: Emergency\nReason: Gastric dilatation-volvulus (bloat) is a life-threatening emergency requiring immediate surgical intervention to prevent gastric rupture and shock."
+    },
+    "CAT_004": {
+        "pet_id": "CAT_004",
+        "symptoms": "Electrocution, burnt mouth, not breathing",
+        "assessment": "Category: Emergency\nReason: Electrical injury with respiratory arrest indicates immediate life threat requiring CPR, cardiac monitoring, and treatment for burns and potential pulmonary edema."
+    },
+    "CAT_005": {
+        "pet_id": "CAT_005",
+        "symptoms": "Difficult labor, stuck kitten, weak contractions",
+        "assessment": "Category: Emergency\nReason: Dystocia with possible fetal obstruction requires immediate veterinary intervention to save both mother and kittens."
+    },
+    "DOG_006": {
+        "pet_id": "DOG_006",
+        "symptoms": "Drowning, unconscious, not breathing after water incident",
+        "assessment": "Category: Emergency\nReason: Near-drowning with respiratory arrest requires immediate CPR, oxygen therapy, and treatment for aspiration pneumonia and hypothermia."
+    },
+    "DOG_007": {
+        "pet_id": "DOG_007",
+        "symptoms": "Heat stroke, panting heavily, collapse, bright red tongue",
+        "assessment": "Category: Emergency\nReason: Heat stroke with collapse indicates severe hyperthermia causing multi-organ dysfunction requiring aggressive cooling and supportive care."
+    },
+    "CAT_006": {
+        "pet_id": "CAT_006",
+        "symptoms": "Attacked by wild animal, multiple wounds, shock",
+        "assessment": "Category: Emergency\nReason: Traumatic attack with multiple wounds and signs of shock requires immediate wound care, antibiotics, and treatment for hypovolemia."
+    },
+    "DOG_008": {
+        "pet_id": "DOG_008",
+        "symptoms": "Deep puncture wound, heavy bleeding, exposed bone",
+        "assessment": "Category: Emergency\nReason: Severe traumatic wound with hemorrhage and possible open fracture requires immediate surgical intervention and pain management."
+    },
+    "DOG_009": {
+        "pet_id": "DOG_009",
+        "symptoms": "Chocolate poisoning, vomiting, rapid breathing, tremors",
+        "assessment": "Category: Emergency\nReason: Theobromine toxicity with neurological signs indicates severe poisoning requiring decontamination, seizure control, and cardiac monitoring."
+    }
+}

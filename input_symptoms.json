@@ -1,0 +1,62 @@
+[
+    {
+        "pet_id": "DOG_001",
+        "symptoms": "Vomiting, not eating for two days, very weak, pale gums"
+    },
+    {
+        "pet_id": "DOG_002",
+        "symptoms": "Not breathing, blue gums, unconscious"
+    },
+    {
+        "pet_id": "CAT_001",
+        "symptoms": "Hit by car, severe bleeding, can't move legs"
+    },
+    {
+        "pet_id": "DOG_003",
+        "symptoms": "Ate rat poison, bleeding from mouth, seizures"
+    },
+    {
+        "pet_id": "CAT_002",
+        "symptoms": "Snake bite, swelling rapidly, difficulty breathing"
+    },
+    {
+        "pet_id": "DOG_004",
+        "symptoms": "Seizures lasting more than 5 minutes, collapsed"
+    },
+    {
+        "pet_id": "CAT_003",
+        "symptoms": "Bloated stomach, trying to vomit but can't, pacing"
+    },
+    {
+        "pet_id": "DOG_005",
+        "symptoms": "Unresponsive, not moving, cold body"
+    },
+    {
+        "pet_id": "CAT_004",
+        "symptoms": "Electrocution, burnt mouth, not breathing"
+    },
+    {
+        "pet_id": "DOG_006",
+        "symptoms": "Drowning, unconscious, not breathing after water incident"
+    },
+    {
+        "pet_id": "DOG_007",
+        "symptoms": "Heat stroke, panting heavily, collapse, bright red tongue"
+    },
+    {
+        "pet_id": "CAT_005",
+        "symptoms": "Difficult labor, stuck kitten, weak contractions"
+    },
+    {
+        "pet_id": "DOG_008",
+        "symptoms": "Deep puncture wound, heavy bleeding, exposed bone"
+    },
+    {
+        "pet_id": "CAT_006",
+        "symptoms": "Attacked by wild animal, multiple wounds, shock"
+    },
+    {
+        "pet_id": "DOG_009",
+        "symptoms": "Chocolate poisoning, vomiting, rapid breathing, tremors"
+    }
+]

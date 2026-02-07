@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+
+{% block title %}Vaccination Dashboard - Ernakulam Pet Hospital{% endblock %}
+
+{% block content %}
+<style>
+    .vax-hero {
+        background: var(--gradient-hero);
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: var(--shadow-md);
+        height: 100%;
+    }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin: 0 auto 1rem;
+    }
+    
+    .stat-value {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+    
+    .stat-label {
+        color: var(--gray-500);
+        font-size: 0.875rem;
+    }
+    
+    .vax-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 0.75rem;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .vax-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+    
+    .vax-icon.completed {
+        background: #d1fae5;
+        color: #059669;
+    }
+    
+    .vax-icon.upcoming {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+    
+    .vax-icon.overdue {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+    
+    .section-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-md);
+        margin-bottom: 1.5rem;
+    }
+    
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
+</style>
+
+<section class="vax-hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-5 fw-bold mb-2">
+                    <i class="bi bi-shield-check text-primary me-2"></i>
+                    Vaccination Dashboard
+                </h1>
+                <p class="text-muted mb-0">Track your pet's vaccination records and schedules</p>
+            </div>
+            <div class="col-lg-6">
+                <div class="row g-2">
+                    <div class="col">
+                        <select class="form-select form-select-lg" onchange="if(this.value) window.location.href=this.value">
+                            <option value="">All Pets</option>
+                            {% for p in pets %}
+                            <option value="{% url 'medical_records:vaccination_dashboard_pet' p.pk %}" {% if pet and pet.pk == p.pk %}selected{% endif %}>
+                                {{ p.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container mb-5">
+    <!-- Stats Row -->
+    <div class="row mb-4 g-3">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #d1fae5; color: #059669;">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <div class="stat-value" style="color: #059669;">{{ total_completed }}</div>
+                <div class="stat-label">Completed</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #dbeafe; color: #2563eb;">
+                    <i class="bi bi-calendar-event"></i>
+                </div>
+                <div class="stat-value" style="color: #2563eb;">{{ total_upcoming }}</div>
+                <div class="stat-label">Upcoming</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #fee2e2; color: #dc2626;">
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+                <div class="stat-value" style="color: #dc2626;">{{ total_overdue }}</div>
+                <div class="stat-label">Overdue</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Overdue Section -->
+        {% if overdue %}
+        <div class="col-12">
+            <div class="section-card" style="border-left: 4px solid #dc2626;">
+                <h5 class="section-title text-danger">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    Overdue Vaccinations
+                </h5>
+                {% for vax in overdue %}
+                <div class="vax-card">
+                    <div class="vax-icon overdue">
+                        <i class="bi bi-exclamation-circle"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <strong>{{ vax.vaccine_name }}</strong>
+                        <small class="d-block text-muted">{{ vax.pet.name }} - {{ vax.disease_protection }}</small>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-danger">Was due {{ vax.scheduled_date|date:"M d, Y" }}</span>
+                        {% if user.role == 'VET' or user.is_staff %}
+                        <a href="{% url 'medical_records:administer_vaccination' vax.pk %}" class="btn btn-sm btn-outline-success ms-2">
+                            <i class="bi bi-check"></i> Administer
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Upcoming Section -->
+        <div class="col-lg-6">
+            <div class="section-card">
+                <h5 class="section-title text-primary">
+                    <i class="bi bi-calendar-event"></i>
+                    Upcoming Vaccinations
+                </h5>
+                {% for vax in upcoming %}
+                <div class="vax-card">
+                    <div class="vax-icon upcoming">
+                        <i class="bi bi-calendar-check"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <strong>{{ vax.vaccine_name }}</strong>
+                        <small class="d-block text-muted">{{ vax.pet.name }}</small>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-primary">{{ vax.scheduled_date|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center py-3 mb-0">No upcoming vaccinations</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Completed Section -->
+        <div class="col-lg-6">
+            <div class="section-card">
+                <h5 class="section-title text-success">
+                    <i class="bi bi-check-circle"></i>
+                    Completed Vaccinations
+                </h5>
+                {% for vax in completed|slice:":10" %}
+                <div class="vax-card">
+                    <div class="vax-icon completed">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <strong>{{ vax.vaccine_name }}</strong>
+                        <small class="d-block text-muted">{{ vax.pet.name }}</small>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-success">{{ vax.administered_date|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center py-3 mb-0">No completed vaccinations</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

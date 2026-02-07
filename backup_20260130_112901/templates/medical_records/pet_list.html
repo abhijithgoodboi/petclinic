@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if user.role == 'VET' %}Patients{% else %}My Pets{% endif %} - VetCare{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+            <h2 class="fw-bold mb-1"><i class="bi bi-heart-pulse text-primary"></i> 
+                {% if user.role == 'VET' or user.is_staff %}Clinic Patients{% else %}My Pets{% endif %}
+            </h2>
+            <p class="text-secondary mb-0">Manage pet profiles and view clinical history.</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            {% if user.role == 'OWNER' %}
+            <a href="{% url 'medical_records:add_pet' %}" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                <i class="bi bi-plus-circle"></i> Register New Pet
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if pets %}
+    <div class="row g-4">
+        {% for pet in pets %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm border-0 hover-card overflow-hidden">
+                <div class="position-relative">
+                    {% if pet.photo %}
+                    <img src="{{ pet.photo.url }}" class="card-img-top" alt="{{ pet.name }}" style="height: 220px; object-fit: cover;">
+                    {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 220px;">
+                        <i class="bi bi-camera text-secondary opacity-25" style="font-size: 4rem;"></i>
+                    </div>
+                    {% endif %}
+                    <div class="position-absolute bottom-0 start-0 m-3">
+                        <span class="badge bg-white text-dark shadow-sm px-3 py-2 rounded-pill small">
+                            {% if pet.gender == 'M' %}<i class="bi bi-gender-male text-primary"></i>{% else %}<i class="bi bi-gender-female text-danger"></i>{% endif %}
+                            {{ pet.get_gender_display }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <h4 class="card-title fw-bold mb-1">{{ pet.name }}</h4>
+                    <p class="text-secondary small mb-3">{{ pet.get_species_display }} • {{ pet.breed }}</p>
+                    
+                    <div class="p-2 rounded-3 stats-section mb-4 d-flex justify-content-around text-center">
+                        <div>
+                            <small class="text-secondary d-block">Age</small>
+                            <span class="fw-bold">{{ pet.age }}y</span>
+                        </div>
+                        <div class="border-start opacity-25"></div>
+                        <div>
+                            <small class="text-secondary d-block">Weight</small>
+                            <span class="fw-bold">{{ pet.weight }}kg</span>
+                        </div>
+                    </div>
+
+                    <a href="{% url 'medical_records:pet_detail' pet.pk %}" class="btn btn-outline-primary w-100 rounded-pill py-2 fw-bold">
+                        <i class="bi bi-file-earmark-medical"></i> Clinical Records
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info border-0 shadow-sm rounded-4 p-5 text-center">
+        <i class="bi bi-emoji-smile fs-1 d-block mb-3 opacity-25"></i>
+        <h4 class="fw-bold">No patients found</h4>
+        <p class="text-secondary mb-4">{% if user.role == 'OWNER' %}Register your pet to start tracking their health.{% else %}No pets have been registered in the clinic yet.{% endif %}</p>
+        {% if user.role == 'OWNER' %}
+        <a href="{% url 'medical_records:add_pet' %}" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-sm">
+            <i class="bi bi-plus-lg"></i> Add First Pet
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

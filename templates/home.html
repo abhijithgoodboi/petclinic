@@ -1,0 +1,815 @@
+{% extends 'base.html' %}
+
+{% block title %}Ernakulam Pet Hospital - Modern Veterinary Platform{% endblock %}
+
+{% block content %}
+<style>
+    /* Hero Section */
+    .hero {
+        position: relative;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        background: var(--gradient-hero);
+        overflow: hidden;
+        padding: 6rem 0;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: white;
+        color: var(--primary-600);
+        padding: 0.75rem 1.25rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow-md);
+    }
+
+    .hero-title {
+        font-size: clamp(2.5rem, 6vw, 4rem);
+        font-weight: 700;
+        color: var(--gray-900);
+        margin-bottom: 1.5rem;
+        line-height: 1.1;
+    }
+
+    .hero-title .highlight {
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .hero-description {
+        font-size: 1.25rem;
+        color: var(--gray-600);
+        margin-bottom: 2rem;
+        max-width: 540px;
+    }
+
+    .hero-cta {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 3rem;
+    }
+
+    .hero-stats {
+        display: flex;
+        gap: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--gray-200);
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-value {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary-600);
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: var(--gray-500);
+        font-weight: 500;
+    }
+
+    .hero-image {
+        position: relative;
+    }
+
+    .hero-image-main {
+        border-radius: 30px;
+        box-shadow: var(--shadow-xl);
+        max-width: 100%;
+        height: auto;
+    }
+
+    .hero-floating-card {
+        position: absolute;
+        background: white;
+        border-radius: 16px;
+        padding: 1rem 1.25rem;
+        box-shadow: var(--shadow-lg);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .hero-floating-card.card-1 {
+        bottom: 20%;
+        left: -40px;
+        animation-delay: 0s;
+    }
+
+    .hero-floating-card.card-2 {
+        top: 15%;
+        right: -30px;
+        animation-delay: -2s;
+    }
+
+    .hero-floating-card.card-3 {
+        bottom: 10%;
+        right: 10%;
+        animation-delay: -4s;
+    }
+
+    .floating-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    /* Features Section */
+    .features {
+        background: white;
+        position: relative;
+    }
+
+    .feature-card {
+        text-align: center;
+        padding: 2.5rem 1.5rem;
+    }
+
+    .feature-card .icon-box {
+        margin: 0 auto 1.5rem;
+    }
+
+    .feature-card h3 {
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .feature-card p {
+        color: var(--gray-500);
+        font-size: 0.95rem;
+    }
+
+    /* Services Preview */
+    .services-preview {
+        background: var(--gray-50);
+        position: relative;
+    }
+
+    .service-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all var(--transition-base);
+    }
+
+    .service-card:hover {
+        transform: translateY(-10px);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .service-card img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .service-card-body {
+        padding: 1.5rem;
+    }
+
+    .service-card h4 {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .service-card p {
+        color: var(--gray-500);
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Stats Section */
+    .stats-section {
+        background: var(--gradient-dark);
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stats-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 50%;
+        height: 100%;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .stat-box {
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .stat-box-value {
+        font-family: 'Playfair Display', serif;
+        font-size: 3.5rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-box-label {
+        font-size: 1rem;
+        color: rgba(255,255,255,0.8);
+        font-weight: 500;
+    }
+
+    /* Testimonials */
+    .testimonials {
+        background: white;
+    }
+
+    .testimonial-card {
+        background: var(--gray-50);
+        border-radius: 20px;
+        padding: 2rem;
+        height: 100%;
+        border: none;
+        box-shadow: none;
+    }
+
+    .testimonial-card:hover {
+        background: white;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .testimonial-quote {
+        font-size: 1.1rem;
+        color: var(--gray-700);
+        line-height: 1.7;
+        margin-bottom: 1.5rem;
+    }
+
+    .testimonial-author {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .testimonial-author img {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--primary-200);
+    }
+
+    .author-info h5 {
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .author-info span {
+        font-size: 0.875rem;
+        color: var(--gray-500);
+    }
+
+    /* CTA Section */
+    .cta-section {
+        background: var(--gradient-primary);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 600px;
+        height: 600px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+    }
+
+    .cta-section h2 {
+        color: white;
+        font-size: 2.5rem;
+    }
+
+    .cta-section p {
+        color: rgba(255,255,255,0.9);
+        font-size: 1.125rem;
+    }
+
+    /* Dashboard Cards for logged in users */
+    .dashboard-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all var(--transition-base);
+        text-decoration: none;
+        display: block;
+        height: 100%;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-green);
+        border-color: var(--primary-200);
+    }
+
+    .dashboard-card .icon-box {
+        margin: 0 auto 1rem;
+    }
+
+    .dashboard-card h5 {
+        color: var(--gray-800);
+        margin-bottom: 0.5rem;
+    }
+
+    .dashboard-card p {
+        color: var(--gray-500);
+        font-size: 0.875rem;
+        margin-bottom: 0;
+    }
+
+    /* Emergency Alert */
+    .emergency-alert {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        animation: pulse-border 2s infinite;
+    }
+
+    @keyframes pulse-border {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+        50% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+    }
+</style>
+
+{% if user.is_authenticated %}
+<!-- Logged In Dashboard -->
+<div class="section bg-primary-50">
+    <div class="container">
+        <div class="row align-items-center mb-5">
+            <div class="col-lg-8">
+                <h1 class="display-heading mb-2" data-aos="fade-right">
+                    Welcome back, <span class="text-gradient">{{ user.first_name|default:user.username }}!</span>
+                </h1>
+                <p class="lead text-secondary" data-aos="fade-right" data-aos-delay="100">
+                    Manage your pets' health and appointments from your personalized dashboard.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end" data-aos="fade-left">
+                <span class="badge badge-primary fs-6 px-3 py-2">
+                    <i class="bi bi-person-badge me-1"></i>{{ user.get_role_display }}
+                </span>
+            </div>
+        </div>
+
+        {% if user.is_veterinarian and active_emergencies %}
+        <div class="emergency-alert mb-4" data-aos="fade-up">
+            <div>
+                <h5 class="mb-1"><i class="bi bi-exclamation-triangle-fill me-2"></i>Active Emergency Cases</h5>
+                <p class="mb-0">There are <strong>{{ active_emergencies.count }}</strong> pending emergency cases requiring immediate attention.</p>
+            </div>
+            <a href="{% url 'appointments:emergency' %}" class="btn btn-white">
+                <i class="bi bi-lightning-charge me-1"></i>View Emergency Queue
+            </a>
+        </div>
+        {% endif %}
+
+        <div class="row g-4">
+            {% if user.is_pet_owner %}
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="0">
+                <a href="{% url 'medical_records:pet_list' %}" class="dashboard-card card card-hover-green">
+                    <div class="icon-box icon-box-lg">
+                        <i class="bi bi-heart-pulse-fill"></i>
+                    </div>
+                    <h5>My Pets</h5>
+                    <p>Manage pet profiles & health records</p>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
+                <a href="{% url 'appointments:book' %}" class="dashboard-card card card-hover-green">
+                    <div class="icon-box icon-box-lg" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); box-shadow: 0 10px 40px -10px rgba(59, 130, 246, 0.3);">
+                        <i class="bi bi-calendar-plus-fill"></i>
+                    </div>
+                    <h5>Book Visit</h5>
+                    <p>Schedule your pet's next appointment</p>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
+                <a href="{% url 'appointments:list' %}" class="dashboard-card card card-hover-green">
+                    <div class="icon-box icon-box-lg" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); box-shadow: 0 10px 40px -10px rgba(139, 92, 246, 0.3);">
+                        <i class="bi bi-calendar-check-fill"></i>
+                    </div>
+                    <h5>My Appointments</h5>
+                    <p>View your scheduled visits</p>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
+                <a href="{% url 'ai_diagnosis:upload' %}" class="dashboard-card card card-hover-green">
+                    <div class="icon-box icon-box-lg" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 10px 40px -10px rgba(245, 158, 11, 0.3);">
+                        <i class="bi bi-cpu-fill"></i>
+                    </div>
+                    <h5>AI Health Check</h5>
+                    <p>Instant pet health analysis</p>
+                </a>
+            </div>
+            {% endif %}
+
+            {% if user.is_veterinarian %}
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="0">
+                <a href="{% url 'medical_records:pet_list' %}" class="dashboard-card card card-hover-green">
+                    <div class="icon-box icon-box-lg">
+                        <i class="bi bi-heart-pulse-fill"></i>
+                    </div>
+                    <h5>All Patients</h5>
+                    <p>Clinic-wide pet database</p>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
+                <a href="{% url 'appointments:list' %}" class="dashboard-card card card-hover-green">
+                    <div class="icon-box icon-box-lg" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); box-shadow: 0 10px 40px -10px rgba(59, 130, 246, 0.3);">
+                        <i class="bi bi-calendar-check-fill"></i>
+                    </div>
+                    <h5>My Schedule</h5>
+                    <p>View & manage appointments</p>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
+                <a href="{% url 'appointments:availability' %}" class="dashboard-card card card-hover-green">
+                    <div class="icon-box icon-box-lg" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); box-shadow: 0 10px 40px -10px rgba(139, 92, 246, 0.3);">
+                        <i class="bi bi-clock-fill"></i>
+                    </div>
+                    <h5>Availability</h5>
+                    <p>Set your working hours</p>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
+                <a href="{% url 'appointments:emergency' %}" class="dashboard-card card card-hover-green">
+                    <div class="icon-box icon-box-lg" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); box-shadow: 0 10px 40px -10px rgba(239, 68, 68, 0.3);">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                    <h5>Emergencies</h5>
+                    <p>Critical care queue</p>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="400">
+                <a href="{% url 'ai_diagnosis:history' %}" class="dashboard-card card card-hover-green">
+                    <div class="icon-box icon-box-lg" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 10px 40px -10px rgba(245, 158, 11, 0.3);">
+                        <i class="bi bi-cpu-fill"></i>
+                    </div>
+                    <h5>AI Results</h5>
+                    <p>Review AI diagnostics</p>
+                </a>
+            </div>
+            {% endif %}
+
+            {% if user.is_staff or user.role == 'ADMIN' %}
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="500">
+                <a href="{% url 'accounts:admin_dashboard' %}" class="dashboard-card card card-hover-green">
+                    <div class="icon-box icon-box-lg" style="background: linear-gradient(135deg, #374151 0%, #1f2937 100%); box-shadow: 0 10px 40px -10px rgba(55, 65, 81, 0.3);">
+                        <i class="bi bi-speedometer2"></i>
+                    </div>
+                    <h5>Admin Panel</h5>
+                    <p>System management</p>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% else %}
+<!-- Landing Page for Non-Logged In Users -->
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
+    
+    <div class="container hero-content">
+        <div class="row align-items-center">
+            <div class="col-lg-6" data-aos="fade-right">
+                <div class="hero-badge">
+                    <i class="bi bi-stars"></i>
+                    Trusted by 10,000+ Pet Owners
+                </div>
+                <h1 class="hero-title">
+                    Compassionate Care for Your <span class="highlight">Beloved Pets</span>
+                </h1>
+                <p class="hero-description">
+                    Experience next-generation veterinary care with AI-powered diagnostics, seamless appointment booking, and comprehensive health tracking - all in one place.
+                </p>
+                <div class="hero-cta">
+                    <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-rocket-takeoff"></i>Get Started Free
+                    </a>
+                    <a href="{% url 'services' %}" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-arrow-right"></i>Our Services
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">24/7</div>
+                        <div class="stat-label">Support</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">95%</div>
+                        <div class="stat-label">AI Accuracy</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">50+</div>
+                        <div class="stat-label">Expert Vets</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block" data-aos="fade-left">
+                <div class="hero-image">
+                    <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&h=700&fit=crop&crop=face" 
+                         alt="Happy dog with veterinarian" 
+                         class="hero-image-main">
+                    
+                    <div class="hero-floating-card card-1" data-aos="fade-up" data-aos-delay="300">
+                        <div class="floating-icon" style="background: var(--primary-100); color: var(--primary-600);">
+                            <i class="bi bi-heart-pulse-fill"></i>
+                        </div>
+                        <div>
+                            <strong style="color: var(--gray-800);">Health Monitoring</strong>
+                            <br><small class="text-muted">Real-time tracking</small>
+                        </div>
+                    </div>
+                    
+                    <div class="hero-floating-card card-2" data-aos="fade-up" data-aos-delay="400">
+                        <div class="floating-icon" style="background: #dbeafe; color: #2563eb;">
+                            <i class="bi bi-calendar-check-fill"></i>
+                        </div>
+                        <div>
+                            <strong style="color: var(--gray-800);">Easy Booking</strong>
+                            <br><small class="text-muted">Quick scheduling</small>
+                        </div>
+                    </div>
+                    
+                    <div class="hero-floating-card card-3" data-aos="fade-up" data-aos-delay="500">
+                        <div class="floating-icon" style="background: #fef3c7; color: #d97706;">
+                            <i class="bi bi-cpu-fill"></i>
+                        </div>
+                        <div>
+                            <strong style="color: var(--gray-800);">AI Diagnosis</strong>
+                            <br><small class="text-muted">Instant analysis</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title" data-aos="fade-up">Why Choose Ernakulam Pet Hospital?</h2>
+            <p class="section-subtitle mx-auto" data-aos="fade-up" data-aos-delay="100">
+                We combine cutting-edge technology with compassionate care to give your pets the best treatment possible.
+            </p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="0">
+                <div class="card feature-card card-hover-green h-100">
+                    <div class="icon-box icon-box-lg">
+                        <i class="bi bi-calendar-heart"></i>
+                    </div>
+                    <h3>Easy Scheduling</h3>
+                    <p>Book appointments online 24/7 with real-time availability and instant confirmation.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
+                <div class="card feature-card card-hover-green h-100">
+                    <div class="icon-box icon-box-lg" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); box-shadow: 0 10px 40px -10px rgba(59, 130, 246, 0.3);">
+                        <i class="bi bi-cpu"></i>
+                    </div>
+                    <h3>AI Diagnostics</h3>
+                    <p>Advanced AI-powered skin disease detection with 95% accuracy for early intervention.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
+                <div class="card feature-card card-hover-green h-100">
+                    <div class="icon-box icon-box-lg" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); box-shadow: 0 10px 40px -10px rgba(139, 92, 246, 0.3);">
+                        <i class="bi bi-file-medical"></i>
+                    </div>
+                    <h3>Digital Records</h3>
+                    <p>Complete medical history, vaccinations, and prescriptions accessible anytime.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
+                <div class="card feature-card card-hover-green h-100">
+                    <div class="icon-box icon-box-lg" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); box-shadow: 0 10px 40px -10px rgba(239, 68, 68, 0.3);">
+                        <i class="bi bi-lightning-charge"></i>
+                    </div>
+                    <h3>Emergency Care</h3>
+                    <p>24/7 emergency support with priority queue for critical cases.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Services Preview -->
+<section class="services-preview section">
+    <div class="container">
+        <div class="row align-items-end mb-5">
+            <div class="col-lg-6" data-aos="fade-right">
+                <h2 class="section-title">Our <span class="text-gradient">Services</span></h2>
+                <p class="section-subtitle">Comprehensive veterinary care for every stage of your pet's life.</p>
+            </div>
+            <div class="col-lg-6 text-lg-end" data-aos="fade-left">
+                <a href="{% url 'services' %}" class="btn btn-primary">
+                    View All Services <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="0">
+                <div class="service-card card">
+                    <img src="https://images.unsplash.com/photo-1628009368231-7bb7cfcb0def?w=400&h=250&fit=crop" alt="Wellness Checkups">
+                    <div class="service-card-body">
+                        <h4>Wellness Checkups</h4>
+                        <p>Regular health examinations to keep your pet in optimal condition.</p>
+                        <a href="{% url 'services' %}" class="btn btn-outline-primary btn-sm">Learn More</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="service-card card">
+                    <img src="https://images.unsplash.com/photo-1612531386530-97286d97c2d2?w=400&h=250&fit=crop" alt="Vaccinations">
+                    <div class="service-card-body">
+                        <h4>Vaccinations</h4>
+                        <p>Complete vaccination programs to protect against common diseases.</p>
+                        <a href="{% url 'services' %}" class="btn btn-outline-primary btn-sm">Learn More</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="service-card card">
+                    <img src="https://images.unsplash.com/photo-1551884831-bbf3cdc6469e?w=400&h=250&fit=crop" alt="AI Diagnosis">
+                    <div class="service-card-body">
+                        <h4>AI Skin Diagnosis</h4>
+                        <p>Advanced AI technology to detect skin conditions early.</p>
+                        <a href="{% url 'services' %}" class="btn btn-outline-primary btn-sm">Learn More</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section section">
+    <div class="container position-relative">
+        <div class="row">
+            <div class="col-6 col-lg-3" data-aos="fade-up" data-aos-delay="0">
+                <div class="stat-box">
+                    <div class="stat-box-value">10K+</div>
+                    <div class="stat-box-label">Happy Pets</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
+                <div class="stat-box">
+                    <div class="stat-box-value">50+</div>
+                    <div class="stat-box-label">Expert Veterinarians</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
+                <div class="stat-box">
+                    <div class="stat-box-value">15+</div>
+                    <div class="stat-box-label">Years Experience</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
+                <div class="stat-box">
+                    <div class="stat-box-value">24/7</div>
+                    <div class="stat-box-label">Emergency Support</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="testimonials section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title" data-aos="fade-up">What Pet Parents Say</h2>
+            <p class="section-subtitle mx-auto" data-aos="fade-up" data-aos-delay="100">
+                Don't just take our word for it - hear from our happy clients!
+            </p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="0">
+                <div class="testimonial-card card">
+                    <div class="mb-3">
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                    </div>
+                    <p class="testimonial-quote">"The AI diagnosis feature is incredible! It detected my dog's skin condition early, and the vets provided immediate treatment. Max is now healthy and happy!"</p>
+                    <div class="testimonial-author">
+                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face" alt="Sarah Johnson">
+                        <div class="author-info">
+                            <h5>Sarah Johnson</h5>
+                            <span>Dog Owner</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="testimonial-card card">
+                    <div class="mb-3">
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                    </div>
+                    <p class="testimonial-quote">"Booking appointments has never been easier. I love having all of Whiskers' medical records in one place. The team is professional and caring!"</p>
+                    <div class="testimonial-author">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" alt="Michael Chen">
+                        <div class="author-info">
+                            <h5>Michael Chen</h5>
+                            <span>Cat Owner</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="testimonial-card card">
+                    <div class="mb-3">
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                    </div>
+                    <p class="testimonial-quote">"Emergency care at 2 AM? Ernakulam Pet Hospital was there for us. Their 24/7 support saved our puppy's life. Forever grateful for their dedication!"</p>
+                    <div class="testimonial-author">
+                        <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face" alt="Emily Rodriguez">
+                        <div class="author-info">
+                            <h5>Emily Rodriguez</h5>
+                            <span>Pet Parent</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section section">
+    <div class="container position-relative text-center">
+        <h2 class="mb-3" data-aos="fade-up">Ready to Give Your Pet the Best Care?</h2>
+        <p class="mb-4" data-aos="fade-up" data-aos-delay="100">Join thousands of happy pet owners using Ernakulam Pet Hospital today.</p>
+        <div data-aos="fade-up" data-aos-delay="200">
+            <a href="{% url 'accounts:register' %}" class="btn btn-white btn-lg me-2">
+                <i class="bi bi-person-plus me-1"></i>Create Free Account
+            </a>
+            <a href="{% url 'accounts:login' %}" class="btn btn-outline-light btn-lg">
+                <i class="bi bi-box-arrow-in-right me-1"></i>Sign In
+            </a>
+        </div>
+    </div>
+</section>
+
+{% endif %}
+{% endblock %}

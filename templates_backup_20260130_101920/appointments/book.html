@@ -1,0 +1,351 @@
+{% extends 'base.html' %}
+
+{% block title %}Book Appointment{% endblock %}
+
+{% block extra_css %}
+<!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+    /* Theme-aware Flatpickr overrides */
+    .flatpickr-calendar {
+        background-color: var(--bs-card-bg) !important;
+        background: var(--bs-card-bg) !important;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.5) !important;
+        border: 1px solid var(--bs-border-color) !important;
+        color: #fff !important;
+        opacity: 1 !important;
+    }
+    .flatpickr-months, .flatpickr-month, .flatpickr-weekdays, .flatpickr-weekdaycontainer {
+        background-color: var(--bs-card-bg) !important;
+        background: var(--bs-card-bg) !important;
+        color: #fff !important;
+        fill: #fff !important;
+    }
+    .flatpickr-innerContainer, .flatpickr-rContainer, .flatpickr-days {
+        background-color: var(--bs-card-bg) !important;
+        background: var(--bs-card-bg) !important;
+    }
+    .flatpickr-day {
+        color: #fff !important;
+    }
+    .flatpickr-monthDropdown-months, .numInput.cur-year {
+        color: #fff !important;
+    }
+    span.flatpickr-weekday {
+        color: #fff !important;
+    }
+    .flatpickr-day:hover {
+        background: var(--bs-tertiary-bg) !important;
+    }
+    .flatpickr-day.today {
+        border-color: var(--brand-primary) !important;
+    }
+    .flatpickr-day.selected {
+        background: var(--brand-primary) !important;
+        border-color: var(--brand-primary) !important;
+        color: #fff !important;
+    }
+
+    /* Availability Indicators */
+    .flatpickr-day.available {
+        border-bottom: 3px solid #4fdc95 !important;
+    }
+    .flatpickr-day.unavailable {
+        border-bottom: 3px solid #dc4f4f !important;
+    }
+    
+    [data-bs-theme="decay"] .flatpickr-day.available {
+        background-color: rgba(79, 220, 149, 0.1) !important;
+    }
+    [data-bs-theme="decay"] .flatpickr-day.unavailable {
+        background-color: rgba(220, 79, 79, 0.1) !important;
+    }
+
+    /* Hover states for availability */
+    .flatpickr-day.available:hover {
+        background-color: #4fdc95 !important;
+        color: #0d0f12 !important;
+    }
+    .flatpickr-day.unavailable:hover {
+        background-color: #dc4f4f !important;
+        color: white !important;
+    }
+
+    .flatpickr-current-month .flatpickr-monthDropdown-months,
+    .flatpickr-next-month svg, .flatpickr-prev-month svg {
+        color: #fff !important;
+        fill: #fff !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow border-0 overflow-hidden">
+                <div class="card-header bg-primary text-white py-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="mb-0 fw-bold"><i class="bi bi-calendar-plus"></i> Reserve a Slot</h3>
+                            <p class="mb-0 opacity-75">Schedule a personalized care session for your pet</p>
+                        </div>
+                        <i class="bi bi-clock-history fs-1 opacity-25"></i>
+                    </div>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    {% if not pets %}
+                    <div class="alert alert-warning border-0 shadow-sm rounded-4 p-4 text-center">
+                        <i class="bi bi-exclamation-triangle fs-1 d-block mb-2"></i>
+                        <h5>No pets found</h5>
+                        <p class="text-secondary">You need to register a pet before booking an appointment.</p>
+                        <a href="{% url 'medical_records:add_pet' %}" class="btn btn-primary rounded-pill px-4">Add Pet Now</a>
+                    </div>
+                    {% else %}
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label for="pet" class="form-label fw-bold text-primary">Select Pet *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 rounded-start-3"><i class="bi bi-heart-pulse text-secondary"></i></span>
+                                    <select class="form-select border-start-0 rounded-end-3" id="pet" name="pet" required>
+                                        <option value="">-- Choose Pet --</option>
+                                        {% for pet in pets %}
+                                        <option value="{{ pet.id }}">{{ pet.name }} ({{ pet.get_species_display }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="veterinarian" class="form-label fw-bold text-primary">Veterinarian</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 rounded-start-3"><i class="bi bi-person-badge text-secondary"></i></span>
+                                    <select class="form-select border-start-0 rounded-end-3" id="veterinarian" name="veterinarian">
+                                        <option value="">-- Any Available --</option>
+                                        {% for vet in veterinarians %}
+                                        <option value="{{ vet.id }}">Dr. {{ vet.get_full_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label for="appointment_date" class="form-label fw-bold text-primary">Date *</label>
+                                <input type="date" class="form-control rounded-3" id="appointment_date" name="appointment_date" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="appointment_time" class="form-label fw-bold text-primary">Time *</label>
+                                <input type="time" class="form-control rounded-3" id="appointment_time" name="appointment_time" required>
+                            </div>
+                        </div>
+
+                        <div id="availability_info" class="mb-4 d-none">
+                            <div class="alert alert-info py-3 border-0 shadow-sm rounded-4">
+                                <small id="availability_text" class="fw-medium"></small>
+                            </div>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label for="duration" class="form-label fw-bold">Estimated Duration</label>
+                                <select class="form-select rounded-3" id="duration" name="duration">
+                                    <option value="30" selected>30 minutes (Standard)</option>
+                                    <option value="45">45 minutes (In-depth)</option>
+                                    <option value="60">1 hour (Consultation)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 d-flex align-items-end">
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="is_emergency" name="is_emergency">
+                                    <label class="form-check-label fw-bold text-danger" for="is_emergency">
+                                        Mark as Emergency
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="reason" class="form-label fw-bold">Reason for Visit *</label>
+                            <textarea class="form-control rounded-3" id="reason" name="reason" rows="3" placeholder="Briefly describe the symptoms or reason for the visit..." required></textarea>
+                        </div>
+
+                        <div class="pt-3 d-flex gap-3">
+                            <button type="submit" class="btn btn-primary px-5 py-2 rounded-pill shadow-sm fw-bold">
+                                <i class="bi bi-calendar-check"></i> Book Appointment
+                            </button>
+                            <a href="{% url 'appointments:list' %}" class="btn btn-outline-secondary px-4 py-2 rounded-pill">Cancel</a>
+                        </div>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar for Unavailable Dates -->
+        <div class="col-lg-4 mt-4 mt-lg-0">
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4">
+                <div class="card-header bg-danger text-white py-3 border-0">
+                    <h5 class="mb-0 fw-bold small"><i class="bi bi-calendar-x"></i> Doctor Absences</h5>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        {% if unavailable_dates or unavailable_days %}
+                            {% for item in unavailable_dates %}
+                            <li class="list-group-item border-0 py-3">
+                                <div class="d-flex align-items-start">
+                                    <span class="badge bg-danger-subtle text-danger rounded-pill me-2">Date</span>
+                                    <div>
+                                        <div class="fw-bold small">{{ item.date|date:"M d, Y" }}</div>
+                                        <div class="text-secondary small">Dr. {{ item.veterinarian__last_name }}</div>
+                                    </div>
+                                </div>
+                            </li>
+                            {% endfor %}
+                            
+                            {% for item in unavailable_days %}
+                            <li class="list-group-item border-0 py-3">
+                                <div class="d-flex align-items-start">
+                                    <span class="badge bg-warning-subtle text-warning rounded-pill me-2">Weekly</span>
+                                    <div>
+                                        <div class="fw-bold small">Every {{ item.get_day_of_week_display }}</div>
+                                        <div class="text-secondary small">Dr. {{ item.veterinarian.last_name }}</div>
+                                    </div>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        {% else %}
+                            <li class="list-group-item border-0 py-5 text-center">
+                                <i class="bi bi-check-circle text-success fs-2 d-block mb-2 opacity-50"></i>
+                                <span class="text-secondary small">All doctors are available as scheduled.</span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="card-footer bg-light border-0 py-3">
+                    <p class="mb-0 text-secondary x-small italic"><i class="bi bi-info-circle"></i> Regular weekly schedules still apply. Please select a doctor to see their specific hours.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+let doctorSchedule = { recurring: {}, specific: {} };
+let fpInstance = null;
+
+function initCalendar() {
+    fpInstance = flatpickr("#appointment_date", {
+        minDate: "today",
+        altInput: true,
+        altFormat: "F j, Y",
+        dateFormat: "Y-m-d",
+        onDayCreate: function(dObj, dStr, fp, dayElem) {
+            const date = dayElem.dateObj;
+            const dateStr = flatpickr.formatDate(date, "Y-m-d");
+            const dayOfWeek = date.getDay() === 0 ? 6 : date.getDay() - 1; // Adjust for 0=Mon, 6=Sun
+
+            let status = null;
+            
+            // Check specific date first
+            if (doctorSchedule.specific[dateStr]) {
+                status = doctorSchedule.specific[dateStr].is_available;
+            } 
+            // Then check recurring day
+            else if (doctorSchedule.recurring[dayOfWeek] !== undefined) {
+                status = doctorSchedule.recurring[dayOfWeek].is_available;
+            }
+
+            if (status === true) {
+                dayElem.classList.add("available");
+                dayElem.title = "Available";
+            } else if (status === false) {
+                dayElem.classList.add("unavailable");
+                dayElem.title = "Not Available";
+            }
+        },
+        onChange: function(selectedDates, dateStr, instance) {
+            checkAvailability();
+        }
+    });
+}
+
+function fetchDoctorSchedule() {
+    const vetId = document.getElementById('veterinarian').value;
+    if (!vetId) {
+        doctorSchedule = { recurring: {}, specific: {} };
+        if (fpInstance) fpInstance.redraw();
+        return;
+    }
+
+    fetch(`/appointments/availability/schedule/?vet_id=${vetId}`)
+        .then(response => response.json())
+        .then(data => {
+            doctorSchedule = data;
+            if (fpInstance) fpInstance.redraw();
+        });
+}
+
+function checkAvailability() {
+    const vetId = document.getElementById('veterinarian').value;
+    const date = document.getElementById('appointment_date').value;
+    const time = document.getElementById('appointment_time').value;
+    const infoDiv = document.getElementById('availability_info');
+    const textSpan = document.getElementById('availability_text');
+    const submitBtn = document.querySelector('button[type="submit"]');
+
+    if (vetId && date) {
+        let url = `/appointments/availability/check/?vet_id=${vetId}&date=${date}`;
+        if (time) url += `&time=${time}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                infoDiv.classList.remove('d-none');
+                if (data.is_available) {
+                    submitBtn.disabled = false;
+                    if (data.has_schedule) {
+                        textSpan.innerHTML = `<i class="bi bi-check-circle-fill text-success"></i> Dr. is available from <strong>${data.start_time}</strong> to <strong>${data.end_time}</strong>.`;
+                        infoDiv.querySelector('.alert').className = 'alert alert-success py-2';
+                    } else {
+                        textSpan.innerHTML = `<i class="bi bi-info-circle-fill text-info"></i> No set schedule for this day. Booking is open.`;
+                        infoDiv.querySelector('.alert').className = 'alert alert-info py-2';
+                    }
+                } else {
+                    submitBtn.disabled = true;
+                    let message = data.reason ? data.reason : "Dr. is NOT available on this date.";
+                    textSpan.innerHTML = `<i class="bi bi-x-circle-fill text-danger"></i> <strong>${message}</strong> Please choose another time, date or doctor.`;
+                    infoDiv.querySelector('.alert').className = 'alert alert-danger py-2';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching availability:', error);
+                submitBtn.disabled = false;
+            });
+    } else {
+        infoDiv.classList.add('d-none');
+        submitBtn.disabled = false;
+    }
+}
+
+document.getElementById('veterinarian').addEventListener('change', () => {
+    fetchDoctorSchedule();
+    checkAvailability();
+});
+
+document.getElementById('appointment_time').addEventListener('change', checkAvailability);
+
+// Initial load
+document.addEventListener('DOMContentLoaded', () => {
+    initCalendar();
+    fetchDoctorSchedule();
+});
+</script>
+{% endblock %}

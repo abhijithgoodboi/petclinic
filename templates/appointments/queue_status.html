@@ -1,0 +1,400 @@
+{% extends 'base.html' %}
+
+{% block title %}Queue Status - Ernakulam Pet Hospital{% endblock %}
+
+{% block content %}
+<style>
+    .queue-hero {
+        background: var(--gradient-hero);
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .queue-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: var(--shadow-lg);
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .token-display {
+        font-size: 4rem;
+        font-weight: 700;
+        color: var(--primary-600);
+        font-family: 'Playfair Display', serif;
+    }
+    
+    .token-label {
+        font-size: 0.875rem;
+        color: var(--gray-500);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .queue-info-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-md);
+        height: 100%;
+    }
+    
+    .wait-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+    }
+    
+    .wait-badge.low {
+        background: var(--primary-100);
+        color: var(--primary-700);
+    }
+    
+    .wait-badge.medium {
+        background: #fef3c7;
+        color: #d97706;
+    }
+    
+    .wait-badge.high {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+    
+    .wait-badge.checking {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .appointment-queue-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: 12px;
+        background: var(--gray-50);
+        margin-bottom: 0.75rem;
+    }
+    
+    .queue-token {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        background: var(--primary-100);
+        color: var(--primary-700);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+    
+    .queue-token.current {
+        background: var(--primary-500);
+        color: white;
+        animation: pulse 2s infinite;
+    }
+    
+    .queue-token.checking {
+        background: #2563eb;
+        color: white;
+        animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    
+    .emergency-card {
+        border-left: 4px solid #dc2626;
+    }
+    
+    .emergency-badge {
+        background: #dc2626;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    
+    .severity-critical {
+        border-left-color: #dc2626;
+        background: #fef2f2;
+    }
+    
+    .severity-severe {
+        border-left-color: #f59e0b;
+        background: #fffbeb;
+    }
+    
+    .severity-moderate {
+        border-left-color: #3b82f6;
+        background: #eff6ff;
+    }
+    
+    .live-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: #16a34a;
+    }
+    
+    .live-indicator::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        background: #16a34a;
+        border-radius: 50%;
+        animation: blink 1s infinite;
+    }
+    
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    
+    .refresh-timer {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+    }
+</style>
+
+<section class="queue-hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-5 fw-bold mb-2">
+                    <i class="bi bi-people-fill text-primary me-2"></i>
+                    Queue Status
+                </h1>
+                <p class="text-muted mb-0">
+                    Real-time queue information for today's appointments
+                    <span class="live-indicator ms-2">LIVE</span>
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <span class="badge bg-primary fs-6 px-3 py-2 me-2">
+                    <i class="bi bi-calendar me-1"></i> {{ queue.date|date:"l, F d" }}
+                </span>
+                <span class="refresh-timer" id="refresh-timer">Auto-refresh in <span id="countdown">10</span>s</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container mb-5" id="queue-container">
+    <!-- Active Emergencies Section (FIFO - shown first) -->
+    {% if active_emergencies %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="queue-info-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="mb-0 text-danger">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        Active Emergencies ({{ active_emergencies.count }})
+                    </h4>
+                    <a href="{% url 'appointments:emergency' %}" class="btn btn-danger btn-sm">
+                        <i class="bi bi-activity me-1"></i>View All Emergencies
+                    </a>
+                </div>
+                
+                {% for ec in active_emergencies %}
+                <div class="appointment-queue-item emergency-card severity-{{ ec.severity|lower }}">
+                    <div class="queue-token" style="background: #dc2626; color: white;">
+                        <i class="bi bi-exclamation-lg"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">{{ ec.pet.name }} <span class="emergency-badge">{{ ec.severity }}</span></h6>
+                        <small class="text-muted">
+                            Owner: {{ ec.owner.get_full_name }} | 
+                            Reported: {{ ec.reported_at|time:"h:i A" }}
+                        </small>
+                        {% if ec.symptoms %}
+                        <br><small class="text-muted">Symptoms: {{ ec.symptoms|truncatewords:15 }}</small>
+                        {% endif %}
+                    </div>
+                    <div class="text-end">
+                        {% if ec.assigned_vet %}
+                            <span class="badge bg-primary">Dr. {{ ec.assigned_vet.first_name }}</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Unassigned</span>
+                        {% endif %}
+                        {% if ec.status == 'IN_TREATMENT' %}
+                            <span class="badge bg-success ms-1">In Treatment</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark ms-1">Waiting</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="row mb-4">
+        <!-- Current Token -->
+        <div class="col-md-4">
+            <div class="queue-card">
+                <div class="token-label">Now Serving</div>
+                <div class="token-display">#{{ queue.last_called_token|default:"-" }}</div>
+            </div>
+        </div>
+        
+        <!-- Total Waiting -->
+        <div class="col-md-4">
+            <div class="queue-card">
+                <div class="token-label">Patients Waiting</div>
+                <div class="token-display">{{ waiting_count|default:"0" }}</div>
+            </div>
+        </div>
+        
+        <!-- Average Wait Time -->
+        <div class="col-md-4">
+            <div class="queue-card">
+                <div class="token-label">Avg. Wait Time</div>
+                <div class="token-display">{{ queue.avg_wait_time|default:"15" }}<span style="font-size: 1.5rem;">min</span></div>
+            </div>
+        </div>
+    </div>
+    
+    {% if user_appointments %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="queue-info-card">
+                <h4 class="mb-4"><i class="bi bi-ticket-perforated text-primary me-2"></i>Your Appointments Today</h4>
+                
+                {% for apt in user_appointments %}
+                <div class="appointment-queue-item" id="appointment-{{ apt.id }}">
+                    <div class="queue-token {% if apt.status == 'IN_PROGRESS' %}checking{% endif %}" id="token-{{ apt.id }}">
+                        {% if apt.token_number %}#{{ apt.token_number }}{% else %}-{% endif %}
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">{{ apt.pet.name }}</h6>
+                        <small class="text-muted">
+                            <i class="bi bi-clock me-1"></i>{{ apt.appointment_time|time:"h:i A" }} | 
+                            {{ apt.reason|truncatewords:10 }}
+                        </small>
+                    </div>
+                    <div class="text-end" id="status-{{ apt.id }}">
+                        {% if apt.status == 'IN_PROGRESS' %}
+                            <span class="badge bg-primary checking">
+                                <i class="bi bi-search me-1"></i>Checking
+                            </span>
+                            {% if apt.updated_at %}
+                            <div class="text-muted small mt-1">
+                                Started: {{ apt.updated_at|time:"h:i A" }}
+                            </div>
+                            {% endif %}
+                        {% elif apt.status == 'CONFIRMED' %}
+                            {% if apt.estimated_wait %}
+                            <div class="wait-badge {% if apt.estimated_wait <= 15 %}low{% elif apt.estimated_wait <= 30 %}medium{% else %}high{% endif %}">
+                                <i class="bi bi-clock"></i>
+                                ~{{ apt.estimated_wait }} min
+                            </div>
+                            {% endif %}
+                            <small class="d-block text-muted mt-1">{{ apt.pets_ahead }} pets ahead</small>
+                        {% elif apt.status == 'SCHEDULED' %}
+                            <a href="{% url 'appointments:check_in' apt.pk %}" class="btn btn-primary btn-sm">
+                                <i class="bi bi-check2-circle me-1"></i>Check In
+                            </a>
+                        {% else %}
+                            <span class="badge bg-success">{{ apt.get_status_display }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if user.is_veterinarian or user.is_staff %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="queue-info-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="mb-0">
+                        <i class="bi bi-list-ol text-primary me-2"></i>Today's Queue (FIFO)
+                    </h4>
+                    <a href="{% url 'appointments:call_next' %}" class="btn btn-primary">
+                        <i class="bi bi-megaphone me-1"></i>Call Next Patient
+                    </a>
+                </div>
+                
+                {% for apt in today_appointments %}
+                <div class="appointment-queue-item" id="queue-apt-{{ apt.id }}">
+                    <div class="queue-token {% if apt.status == 'IN_PROGRESS' %}checking{% endif %}" id="queue-token-{{ apt.id }}">
+                        {% if apt.token_number %}#{{ apt.token_number }}{% else %}-{% endif %}
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">{{ apt.pet.name }} <small class="text-muted">({{ apt.owner.get_full_name }})</small></h6>
+                        <small class="text-muted">
+                            <i class="bi bi-clock me-1"></i>{{ apt.appointment_time|time:"h:i A" }} | 
+                            {{ apt.reason|truncatewords:8 }}
+                        </small>
+                    </div>
+                    <div id="queue-status-{{ apt.id }}">
+                        {% if apt.status == 'IN_PROGRESS' %}
+                            <span class="badge bg-primary checking">
+                                <i class="bi bi-search me-1"></i>Checking
+                            </span>
+                            {% if apt.updated_at %}
+                            <div class="text-muted small mt-1">
+                                Since: {{ apt.updated_at|time:"h:i A" }}
+                            </div>
+                            {% endif %}
+                        {% elif apt.status == 'CONFIRMED' %}
+                            <span class="badge bg-primary">Waiting</span>
+                        {% elif apt.status == 'SCHEDULED' %}
+                            <span class="badge bg-secondary">Not Checked In</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center py-4">No appointments scheduled for today.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="row">
+        <div class="col-12 text-center">
+            <a href="{% url 'appointments:list' %}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Appointments
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Simple countdown timer (page no longer auto-refreshes data)
+    const REFRESH_INTERVAL = 10000; // 10 seconds
+    let countdown = 10;
+    
+    function updateCountdown() {
+        countdown--;
+        const countdownEl = document.getElementById('countdown');
+        if (countdownEl) {
+            countdownEl.textContent = countdown;
+        }
+        if (countdown <= 0) {
+            countdown = 10;
+            // Refresh the page to get latest data
+            window.location.reload();
+        }
+    }
+    
+    // Start countdown
+    setInterval(updateCountdown, 1000);
+</script>
+{% endblock %}

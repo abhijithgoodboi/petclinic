@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ pet.name }} - Patient Profile{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row g-4">
+        <!-- Pet Profile Sidebar -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 overflow-hidden rounded-4">
+                <div class="position-relative">
+                    {% if pet.photo %}
+                    <img src="{{ pet.photo.url }}" class="card-img-top" alt="{{ pet.name }}" style="height: 350px; object-fit: cover;">
+                    {% else %}
+                    <div class="card-img-top bg-primary-subtle d-flex align-items-center justify-content-center" style="height: 300px;">
+                        <i class="bi bi-heart-pulse text-primary opacity-25" style="font-size: 6rem;"></i>
+                    </div>
+                    {% endif %}
+                    <div class="position-absolute top-0 start-0 m-3">
+                        <span class="badge bg-primary rounded-pill px-3 py-2 shadow-sm">{{ pet.get_species_display }}</span>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="fw-bold mb-0">{{ pet.name }}</h2>
+                        <span class="badge bg-light text-secondary border rounded-pill">{{ pet.get_gender_display }}</span>
+                    </div>
+                    
+                    <table class="table table-borderless small mb-0">
+                        <tr>
+                            <td class="text-secondary ps-0">Breed</td>
+                            <td class="text-end fw-bold">{{ pet.breed }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-secondary ps-0">Current Age</td>
+                            <td class="text-end fw-bold">{{ pet.age }} Years</td>
+                        </tr>
+                        <tr>
+                            <td class="text-secondary ps-0">Weight</td>
+                            <td class="text-end fw-bold">{{ pet.weight }} kg</td>
+                        </tr>
+                        <tr>
+                            <td class="text-secondary ps-0">Color</td>
+                            <td class="text-end fw-bold">{{ pet.color }}</td>
+                        </tr>
+                        {% if pet.microchip_id %}
+                        <tr>
+                            <td class="text-secondary ps-0">Microchip</td>
+                            <td class="text-end fw-bold">{{ pet.microchip_id }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+                <div class="card-footer bg-light border-0 p-4 pt-0">
+                    <hr class="my-3 opacity-25">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-person-circle text-secondary me-2"></i>
+                        <small class="text-secondary">Owner: <strong>{{ pet.owner.get_full_name }}</strong></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clinical History Area -->
+        <div class="col-lg-8">
+            <!-- Medical Alerts -->
+            {% if pet.allergies or pet.medical_conditions %}
+            <div class="row g-3 mb-4">
+                {% if pet.allergies %}
+                <div class="col-md-6">
+                    <div class="p-3 rounded-4 bg-danger-subtle border-start border-5 border-danger">
+                        <small class="text-danger fw-bold d-block mb-1"><i class="bi bi-exclamation-triangle-fill"></i> KNOWN ALLERGIES</small>
+                        <p class="mb-0 small fw-medium" style="color: #000 !important;">{{ pet.allergies }}</p>
+                    </div>
+                </div>
+                {% endif %}
+                {% if pet.medical_conditions %}
+                <div class="col-md-6">
+                    <div class="p-3 rounded-4 bg-warning-subtle border-start border-5 border-warning">
+                        <small class="text-warning-emphasis fw-bold d-block mb-1"><i class="bi bi-info-circle-fill"></i> CHRONIC CONDITIONS</small>
+                        <p class="mb-0 small fw-medium" style="color: #000 !important;">{{ pet.medical_conditions }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Medical Records Section -->
+            <div class="card shadow-sm border rounded-4 overflow-hidden mb-4" style="border-color: var(--bs-border-color) !important;">
+                <div class="card-header border-bottom py-3 d-flex justify-content-between align-items-center" style="border-bottom-color: var(--bs-border-color) !important;">
+                    <h5 class="mb-0 fw-bold" style="color: var(--bs-heading-color) !important;"><i class="bi bi-file-medical text-primary me-2"></i> Recent Visit Records</h5>
+                    {% if user.role == 'VET' or user.is_staff %}
+                    <a href="{% url 'medical_records:add_record' pet.id %}" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold">
+                        <i class="bi bi-plus-lg"></i> Add Record
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="card-body p-0">
+                    {% if medical_records %}
+                    <div class="list-group list-group-flush">
+                        {% for record in medical_records %}
+                        <a href="{% url 'medical_records:record_detail' record.pk %}" class="list-group-item list-group-item-action p-4 border-0 border-bottom">
+                            <div class="d-flex w-100 justify-content-between align-items-center mb-2">
+                                <span class="badge bg-primary-subtle text-primary rounded-pill px-3">{{ record.get_visit_type_display }}</span>
+                                <small class="text-secondary fw-medium">{{ record.visit_date|date:"M d, Y" }}</small>
+                            </div>
+                            <h6 class="fw-bold mb-1">{{ record.diagnosis|truncatewords:15 }}</h6>
+                            <p class="text-secondary small mb-0">Examined by Dr. {{ record.veterinarian.last_name }}</p>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="p-5 text-center" style="color: var(--bs-body-color) !important; opacity: 0.8;">
+                        <i class="bi bi-journal-x fs-1 d-block mb-2 opacity-25"></i>
+                        <p class="small">No medical records available for this patient.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Vaccinations Section -->
+            <div class="card shadow-sm border rounded-4 overflow-hidden" style="border-color: var(--bs-border-color) !important;">
+                <div class="card-header border-bottom py-3 d-flex justify-content-between align-items-center" style="border-bottom-color: var(--bs-border-color) !important;">
+                    <h5 class="mb-0 fw-bold" style="color: var(--bs-heading-color) !important;"><i class="bi bi-shield-plus text-success me-2"></i> Vaccination Status</h5>
+                    {% if user.role == 'VET' or user.is_staff %}
+                    <a href="{% url 'medical_records:add_vaccination' pet.pk %}" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold">
+                        <i class="bi bi-plus-lg"></i> Schedule
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="card-body p-0">
+                    {% if vaccinations %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="stats-section small">
+                                <tr>
+                                    <th class="ps-4 py-3" style="color: var(--bs-heading-color) !important;">Vaccine</th>
+                                    <th class="py-3" style="color: var(--bs-heading-color) !important;">Scheduled</th>
+                                    <th class="py-3" style="color: var(--bs-heading-color) !important;">Status</th>
+                                    <th class="text-end pe-4 py-3" style="color: var(--bs-heading-color) !important;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for vaccination in vaccinations %}
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="fw-bold small">{{ vaccination.vaccine_name }}</div>
+                                        <div class="text-secondary x-small">{{ vaccination.disease_protection }}</div>
+                                    </td>
+                                    <td><small class="fw-medium">{{ vaccination.scheduled_date|date:"M d, Y" }}</small></td>
+                                    <td>
+                                        <span class="badge bg-{{ vaccination.status|lower }}-subtle text-{{ vaccination.status|lower }} rounded-pill px-3">
+                                            {{ vaccination.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        {% if vaccination.status == 'SCHEDULED' or vaccination.status == 'OVERDUE' %}
+                                            {% if user.role == 'VET' or user.is_staff %}
+                                            <form method="post" action="{% url 'medical_records:administer_vaccination' vaccination.pk %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 fw-bold py-1 x-small">
+                                                    Complete
+                                                </button>
+                                            </form>
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="p-5 text-center" style="color: var(--bs-body-color) !important; opacity: 0.8;">
+                        <i class="bi bi-shield-slash fs-1 d-block mb-2 opacity-25"></i>
+                        <p class="small">No vaccination records found.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 mb-5 text-center">
+        <a href="{% url 'medical_records:pet_list' %}" class="btn btn-link text-secondary text-decoration-none rounded-pill px-4">
+            <i class="bi bi-arrow-left"></i> Back to Patient Directory
+        </a>
+    </div>
+</div>
+{% endblock %}

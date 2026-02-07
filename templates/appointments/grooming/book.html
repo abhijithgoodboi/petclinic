@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+
+{% block title %}Book Grooming - Ernakulam Pet Hospital{% endblock %}
+
+{% block content %}
+<style>
+    .booking-hero {
+        background: var(--gradient-hero);
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .booking-card {
+        background: white;
+        border-radius: 24px;
+        padding: 2rem;
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .service-checkbox {
+        display: none;
+    }
+    
+    .service-option {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border: 2px solid var(--gray-200);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        margin-bottom: 0.75rem;
+    }
+    
+    .service-option:hover {
+        border-color: var(--primary-300);
+        background: var(--primary-50);
+    }
+    
+    .service-checkbox:checked + .service-option {
+        border-color: var(--primary-500);
+        background: var(--primary-50);
+    }
+    
+    .service-icon-small {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        background: var(--primary-100);
+        color: var(--primary-600);
+    }
+    
+    .size-option {
+        display: none;
+    }
+    
+    .size-label {
+        flex: 1;
+        text-align: center;
+        padding: 1rem;
+        border: 2px solid var(--gray-200);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+    
+    .size-label:hover {
+        border-color: var(--primary-300);
+    }
+    
+    .size-option:checked + .size-label {
+        border-color: var(--primary-500);
+        background: var(--primary-50);
+    }
+    
+    .size-icon {
+        font-size: 2rem;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+</style>
+
+<section class="booking-hero">
+    <div class="container">
+        <h1 class="display-5 fw-bold mb-2">
+            <i class="bi bi-scissors text-primary me-2"></i>
+            Book Grooming Session
+        </h1>
+        <p class="text-muted mb-0">Schedule a pampering session for your pet</p>
+    </div>
+</section>
+
+<div class="container mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="booking-card">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- Pet Selection -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Select Pet</label>
+                        <select name="pet" class="form-select form-select-lg" required>
+                            <option value="">Choose your pet...</option>
+                            {% for pet in pets %}
+                            <option value="{{ pet.id }}">{{ pet.name }} ({{ pet.get_species_display }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Pet Size -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Pet Size</label>
+                        <div class="d-flex gap-3">
+                            <input type="radio" name="pet_size" id="size_small" value="SMALL" class="size-option">
+                            <label for="size_small" class="size-label">
+                                <span class="size-icon">🐕</span>
+                                <strong>Small</strong>
+                                <small class="d-block text-muted">< 10 kg</small>
+                            </label>
+                            
+                            <input type="radio" name="pet_size" id="size_medium" value="MEDIUM" class="size-option" checked>
+                            <label for="size_medium" class="size-label">
+                                <span class="size-icon">🐕</span>
+                                <strong>Medium</strong>
+                                <small class="d-block text-muted">10-25 kg</small>
+                            </label>
+                            
+                            <input type="radio" name="pet_size" id="size_large" value="LARGE" class="size-option">
+                            <label for="size_large" class="size-label">
+                                <span class="size-icon">🐕</span>
+                                <strong>Large</strong>
+                                <small class="d-block text-muted">> 25 kg</small>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Services Selection -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Select Services</label>
+                        {% for service in services %}
+                        <input type="checkbox" name="services" value="{{ service.id }}" id="service_{{ service.id }}" class="service-checkbox">
+                        <label for="service_{{ service.id }}" class="service-option">
+                            <div class="service-icon-small">
+                                {% if service.service_type == 'BATHING' %}
+                                    <i class="bi bi-droplet-fill"></i>
+                                {% elif service.service_type == 'HAIR_TRIMMING' %}
+                                    <i class="bi bi-scissors"></i>
+                                {% elif service.service_type == 'NAIL_CLIPPING' %}
+                                    <i class="bi bi-hand-index-thumb"></i>
+                                {% elif service.service_type == 'FULL_GROOMING' %}
+                                    <i class="bi bi-stars"></i>
+                                {% else %}
+                                    <i class="bi bi-brush"></i>
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <strong>{{ service.name }}</strong>
+                                <small class="d-block text-muted">{{ service.duration }} min</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="fw-bold text-primary">Rs.{{ service.price|floatformat:0 }}</span>
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Date and Time -->
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <label class="form-label fw-bold">Date</label>
+                            <input type="date" name="appointment_date" class="form-control form-control-lg" min="{{ today }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Time</label>
+                            <select name="appointment_time" class="form-select form-select-lg" required>
+                                <option value="">Select time...</option>
+                                <option value="09:00">09:00 AM</option>
+                                <option value="09:30">09:30 AM</option>
+                                <option value="10:00">10:00 AM</option>
+                                <option value="10:30">10:30 AM</option>
+                                <option value="11:00">11:00 AM</option>
+                                <option value="11:30">11:30 AM</option>
+                                <option value="12:00">12:00 PM</option>
+                                <option value="14:00">02:00 PM</option>
+                                <option value="14:30">02:30 PM</option>
+                                <option value="15:00">03:00 PM</option>
+                                <option value="15:30">03:30 PM</option>
+                                <option value="16:00">04:00 PM</option>
+                                <option value="16:30">04:30 PM</option>
+                                <option value="17:00">05:00 PM</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Special Instructions -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Special Instructions (Optional)</label>
+                        <textarea name="special_instructions" class="form-control" rows="3" placeholder="Any special grooming preferences, allergies, or behavioral notes..."></textarea>
+                    </div>
+                    
+                    <!-- Submit -->
+                    <div class="d-flex gap-3">
+                        <button type="submit" class="btn btn-primary btn-lg flex-grow-1">
+                            <i class="bi bi-calendar-check me-2"></i>Book Grooming Session
+                        </button>
+                        <a href="{% url 'appointments:grooming_services' %}" class="btn btn-outline-secondary btn-lg">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

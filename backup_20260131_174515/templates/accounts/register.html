@@ -1,0 +1,569 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - Ernakulam Pet Hospital{% endblock %}
+
+{% block content %}
+<style>
+    .auth-section {
+        min-height: calc(100vh - 160px);
+        display: flex;
+        align-items: center;
+        padding: 3rem 0;
+        background: var(--gradient-hero);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: radial-gradient(var(--primary-100) 1px, transparent 1px);
+        background-size: 40px 40px;
+        opacity: 0.5;
+    }
+
+    .auth-container {
+        display: flex;
+        background: white;
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: var(--shadow-xl);
+        position: relative;
+        z-index: 2;
+    }
+
+    .auth-image {
+        flex: 0 0 40%;
+        background: url('https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800&h=1200&fit=crop') center/cover;
+        position: relative;
+        display: none;
+    }
+
+    @media (min-width: 992px) {
+        .auth-image {
+            display: block;
+        }
+    }
+
+    .auth-image-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(20, 83, 45, 0.9) 0%, rgba(34, 197, 94, 0.6) 50%, transparent 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 3rem;
+        color: white;
+    }
+
+    .auth-image-text h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        color: white;
+    }
+
+    .auth-form-container {
+        flex: 1;
+        padding: 3rem;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .auth-logo {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .auth-logo-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--gradient-primary);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        box-shadow: var(--shadow-green);
+    }
+
+    .auth-logo-text {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--primary-600);
+    }
+
+    .auth-title {
+        font-size: 1.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .auth-subtitle {
+        color: var(--gray-500);
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--gray-700);
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-control, .form-select {
+        height: 52px;
+        border: 2px solid var(--gray-200);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        transition: all var(--transition-fast);
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-400);
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+    }
+
+    textarea.form-control {
+        height: auto;
+    }
+
+    .input-icon-wrapper {
+        position: relative;
+    }
+
+    .input-icon-wrapper .form-control {
+        padding-left: 3rem;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--primary-500);
+        font-size: 1.1rem;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--gray-400);
+        cursor: pointer;
+        padding: 0.5rem;
+        transition: color var(--transition-fast);
+    }
+
+    .password-toggle:hover {
+        color: var(--primary-500);
+    }
+
+    .btn-auth {
+        width: 100%;
+        height: 52px;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 12px;
+        margin-top: 0.5rem;
+    }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--gray-200);
+    }
+
+    .auth-footer a {
+        color: var(--primary-600);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+
+    .role-selector {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .role-option {
+        flex: 1;
+        position: relative;
+    }
+
+    .role-option input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .role-option label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1.25rem 1rem;
+        border: 2px solid var(--gray-200);
+        border-radius: 16px;
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+
+    .role-option label:hover {
+        border-color: var(--primary-300);
+        background: var(--primary-50);
+    }
+
+    .role-option input:checked + label {
+        border-color: var(--primary-500);
+        background: var(--primary-50);
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+    }
+
+    .role-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 0.75rem;
+        font-size: 1.5rem;
+    }
+
+    .role-title {
+        font-weight: 600;
+        color: var(--gray-800);
+        font-size: 0.95rem;
+    }
+
+    .form-help {
+        font-size: 0.8rem;
+        color: var(--gray-500);
+        margin-top: 0.25rem;
+    }
+
+    .profile-upload {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .profile-preview {
+        width: 70px;
+        height: 70px;
+        border-radius: 16px;
+        background: var(--gray-100);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gray-400);
+        font-size: 2rem;
+        overflow: hidden;
+    }
+
+    .profile-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .divider {
+        display: flex;
+        align-items: center;
+        margin: 1.5rem 0;
+        color: var(--gray-400);
+    }
+
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--gray-200);
+    }
+
+    .divider span {
+        padding: 0 1rem;
+        font-size: 0.875rem;
+    }
+
+    .social-buttons {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .social-btn {
+        flex: 1;
+        height: 50px;
+        border: 2px solid var(--gray-200);
+        border-radius: 12px;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-weight: 500;
+        color: var(--gray-700);
+        transition: all var(--transition-fast);
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .social-btn:hover {
+        border-color: var(--primary-300);
+        background: var(--primary-50);
+        color: var(--primary-700);
+        text-decoration: none;
+    }
+
+    .social-btn.google:hover {
+        border-color: #ea4335;
+        background: #fef2f2;
+        color: #ea4335;
+    }
+
+    .social-btn.facebook:hover {
+        border-color: #1877f2;
+        background: #eff6ff;
+        color: #1877f2;
+    }
+</style>
+
+<section class="auth-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-11 col-xl-10">
+                <div class="auth-container" data-aos="fade-up">
+                    <!-- Image Side -->
+                    <div class="auth-image">
+                        <div class="auth-image-overlay">
+                            <div class="auth-image-text">
+                                <h2>Join the Ernakulam Pet Hospital Family</h2>
+                                <p>Create an account to access world-class veterinary care for your pets. Book appointments, track health records, and get AI-powered diagnostics.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Side -->
+                    <div class="auth-form-container">
+                        <div class="auth-logo">
+                            <div class="auth-logo-icon">
+                                <i class="bi bi-heart-pulse-fill"></i>
+                            </div>
+                            <span class="auth-logo-text">Ernakulam Pet Hospital</span>
+                        </div>
+
+                        <h1 class="auth-title">Create Account</h1>
+                        <p class="auth-subtitle">Fill in your details to get started</p>
+
+                        {% if messages %}
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                <i class="bi bi-exclamation-circle me-2"></i>{{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+
+                            <!-- Role Selection -->
+                            <div class="form-group">
+                                <label class="form-label">I am a:</label>
+                                <div class="role-selector">
+                                    <div class="role-option">
+                                        <input type="radio" name="role" id="role_owner" value="OWNER" required>
+                                        <label for="role_owner">
+                                            <div class="role-icon" style="background: var(--primary-100); color: var(--primary-600);">
+                                                <i class="bi bi-heart"></i>
+                                            </div>
+                                            <span class="role-title">Pet Owner</span>
+                                        </label>
+                                    </div>
+                                    <div class="role-option">
+                                        <input type="radio" name="role" id="role_vet" value="VET">
+                                        <label for="role_vet">
+                                            <div class="role-icon" style="background: #dbeafe; color: #2563eb;">
+                                                <i class="bi bi-person-badge"></i>
+                                            </div>
+                                            <span class="role-title">Veterinarian</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="id_first_name">First Name *</label>
+                                        <input type="text" name="first_name" class="form-control" id="id_first_name" placeholder="John" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="id_last_name">Last Name *</label>
+                                        <input type="text" name="last_name" class="form-control" id="id_last_name" placeholder="Doe" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="id_username">Username *</label>
+                                        <input type="text" name="username" class="form-control" id="id_username" placeholder="johndoe" required>
+                                        <div class="form-help">This will be used to log in.</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="id_email">Email *</label>
+                                        <input type="email" name="email" class="form-control" id="id_email" placeholder="john@example.com" required>
+                                        <div id="email-warning" class="invalid-feedback">This email is already registered.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="id_password1">Password *</label>
+                                        <div class="input-icon-wrapper">
+                                            <input type="password" name="password1" class="form-control" id="id_password1" placeholder="Minimum 8 characters" required>
+                                            <button type="button" class="password-toggle" id="togglePassword1">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="id_password2">Confirm Password *</label>
+                                        <div class="input-icon-wrapper">
+                                            <input type="password" name="password2" class="form-control" id="id_password2" placeholder="Repeat password" required>
+                                            <button type="button" class="password-toggle" id="togglePassword2">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="id_phone_number">Phone Number</label>
+                                <input type="tel" name="phone_number" class="form-control" id="id_phone_number" placeholder="+1 (555) 123-4567">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Profile Picture</label>
+                                <div class="profile-upload">
+                                    <div class="profile-preview" id="profilePreview">
+                                        <i class="bi bi-person"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <input type="file" name="profile_picture" class="form-control" id="id_profile_picture" accept="image/*">
+                                        <div class="form-help">Optional. JPG, PNG up to 2MB.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-auth">
+                                <i class="bi bi-person-plus me-2"></i>Create Account
+                            </button>
+                        </form>
+
+                        <div class="auth-footer">
+                            <p class="mb-0">Already have an account? <a href="{% url 'accounts:login' %}">Sign in</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Password Toggle
+    function setupPasswordToggle(buttonId, inputId) {
+        document.getElementById(buttonId).addEventListener('click', function() {
+            const passwordInput = document.getElementById(inputId);
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        });
+    }
+
+    setupPasswordToggle('togglePassword1', 'id_password1');
+    setupPasswordToggle('togglePassword2', 'id_password2');
+
+    // Profile Picture Preview
+    document.getElementById('id_profile_picture').addEventListener('change', function(e) {
+        const preview = document.getElementById('profilePreview');
+        const file = e.target.files[0];
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Email Validation
+    const emailInput = document.getElementById('id_email');
+    const emailWarning = document.getElementById('email-warning');
+
+    emailInput.addEventListener('input', function() {
+        const email = this.value;
+        if (email.length > 5 && email.includes('@')) {
+            fetch(`/accounts/validate-email/?email=${email}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.is_taken) {
+                        emailInput.classList.add('is-invalid');
+                        emailWarning.style.display = 'block';
+                    } else {
+                        emailInput.classList.remove('is-invalid');
+                        emailInput.classList.add('is-valid');
+                        emailWarning.style.display = 'none';
+                    }
+                });
+        } else {
+            emailInput.classList.remove('is-invalid', 'is-valid');
+            emailWarning.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}
